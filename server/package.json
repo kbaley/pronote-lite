@@ -1,0 +1,18 @@
+{
+  "name": "pronote-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dorian-eydoux/pronote-api": "^2.3.4",
+    "body-parser": "^1.19.1",
+    "dotenv": "^14.2.0",
+    "express": "^4.17.2"
+  }
+}
