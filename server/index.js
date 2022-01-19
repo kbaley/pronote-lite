@@ -2,9 +2,12 @@ require('dotenv').config();
 const express = require("express");
 const pronote = require('@dorian-eydoux/pronote-api');
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const auth = require('./auth.js');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
+const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
 const app = express();
 const jsonParser = bodyParser.json();
@@ -34,9 +37,20 @@ app.get("/api/homework", async (req, res) => {
 app.post("/api/login", jsonParser, async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
+  const encrypted = auth.encrypt(password);
   session = await pronote.login(PRONOTE_URL, username, password);
-  session.setKeepAlive(true);
-  res.json({ message: "Logged in" });
+  const authToken = jwt.sign({
+    username: username,
+    key: encrypted.encryptedData.toString('hex'),
+    iv: encrypted.initVector.toString('hex')
+  }, TOKEN_SECRET);
+  res.json({ authToken,
+    user: {
+      id: session.user.id,
+      name: session.user.name,
+      username
+    }
+  });
 });
 
 app.listen(PORT, () => {

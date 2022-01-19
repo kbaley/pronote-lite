@@ -2,12 +2,13 @@ import React from 'react';
 import './App.css';
 import Timetable from './Timetable';
 import Homework from './Homework';
+import {clone} from 'lodash';
 
 function App() {
   const [data] = React.useState(null);
   const [timetable, setTimetable] = React.useState([]);
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
+  const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
   const [homework, setHomework] = React.useState([]);
 
   const handleUserNameChange = (event) => {
@@ -31,6 +32,19 @@ function App() {
       });
   }
 
+  const handleLoginResponse = (data) => {
+    let users = localStorage.getItem("users") || [];
+    let user = users.find(u => u.username === data.user.username);
+    if (!user) {
+      user = clone(data.user);
+      user.authToken = data.authToken;
+      users.push(user);
+    } else {
+      user.authToken = data.authToken;
+    }
+    localStorage.setItem("users", users);
+  }
+
   const login = () => {
     fetch("/api/login",
       {
@@ -42,7 +56,7 @@ function App() {
       }
     )
       .then((res) => res.json())
-      .then((data) => getStudentData());
+      .then((data) => handleLoginResponse(data));
   }
 
   return (
