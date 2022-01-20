@@ -2,10 +2,7 @@ import React from 'react';
 import './App.css';
 import Timetable from './Timetable';
 import Homework from './Homework';
-import {clone} from 'lodash';
 import axios from 'axios';
-
-const apiUrl = 'http://localhost:3001';
 
 function App() {
   const [data] = React.useState(null);
@@ -23,33 +20,20 @@ function App() {
   };
 
   const getStudentData = () => {
-    fetch("/api/homework")
-      .then((res) => res.json())
-      .then((data) => setHomework(data));
+    axios.get('/api/homework')
+      .then( (result) => setHomework(result.data));
 
-    fetch("/api/timetable")
-      .then((res) => res.json())
-      .then((data) => {
-        setTimetable(data)
-      });
+    axios.get('/api/timetable')
+      .then( (result) => setTimetable(result.data));
   }
 
   const handleLoginResponse = (data) => {
     getStudentData();
   }
 
-  const login = () => {
-    fetch("/api/login",
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({username, password})
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => handleLoginResponse(data));
+  const login = async () => {
+    const result = await axios.post('/api/login', {username, password})
+    handleLoginResponse(result);
   }
 
   return (
