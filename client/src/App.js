@@ -30,15 +30,12 @@ function App() {
     fetch("/api/timetable")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setTimetable(data)
       });
   }
 
   const handleLoginResponse = (data) => {
-    fetch("/api/homework")
-      .then((res) => res.json())
-      .then((data) => console.log(data));
+    getStudentData();
   }
 
   const login = () => {
