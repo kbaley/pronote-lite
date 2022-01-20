@@ -15,3 +15,12 @@ exports.encrypt = (message) => {
     initVector
   }
 }
+
+exports.decrypt = (message, initVector) => {
+
+  const decipher = crypto.createCipheriv(algorithm, PW_HASH, initVector);
+  let decryptedData = decipher.update(message, "hex", "utf-8");
+  decryptedData += decipher.final("utf8");
+
+  return decryptedData;
+}

@@ -44,14 +44,19 @@ const getSession = (req) => {
     return null;
   }
   const token = req.cookies.PLToken;
-  console.log(jsonwebtoken.verify(token, TOKEN_SECRET));
-  console.log(decodedToken);
+  const decodedToken = jsonwebtoken.verify(token, TOKEN_SECRET);
+  console.log(decodedToken.key);
+  const iv = Buffer.from(decodedToken.iv, "hex");
+  console.log(iv);
+  const pw = auth.decrypt(decodedToken.key, iv);
+  console.log(pw);
 }
 
 app.post("/api/login", jsonParser, async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const encrypted = auth.encrypt(password);
+  console.log(auth.decrypt(encrypted.encryptedData.toString("hex"), encrypted.initVector).toString("hex"));
   session = await pronote.login(PRONOTE_URL, username, password);
   const authToken = jsonwebtoken.sign({
     username: username,
