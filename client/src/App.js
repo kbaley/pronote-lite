@@ -3,6 +3,9 @@ import './App.css';
 import Timetable from './Timetable';
 import Homework from './Homework';
 import {clone} from 'lodash';
+import axios from 'axios';
+
+const apiUrl = 'http://localhost:3001';
 
 function App() {
   const [data] = React.useState(null);
@@ -33,16 +36,9 @@ function App() {
   }
 
   const handleLoginResponse = (data) => {
-    let users = localStorage.getItem("users") || [];
-    let user = users.find(u => u.username === data.user.username);
-    if (!user) {
-      user = clone(data.user);
-      user.authToken = data.authToken;
-      users.push(user);
-    } else {
-      user.authToken = data.authToken;
-    }
-    localStorage.setItem("users", users);
+    fetch("/api/homework")
+      .then((res) => res.json())
+      .then((data) => console.log(data));
   }
 
   const login = () => {
