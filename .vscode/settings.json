@@ -3,9 +3,14 @@
     "appService.deploySubpath": ".",
     "appService.zipIgnorePattern": [
         "node_modules{,/**}",
+        "client/node_modules{,/**}",
+        "server/node_modules{,/**}",
         ".vscode{,/**}",
         ".env{,/**}",
-        "client/node_modules{,/**}",
-        "server/node_modules{,/**}"
+        ".env.local{,/**}",
+        "client/.env.local{,/**}",
+        "client/.env{,/**}",
+        "server/.env.local{,/**}",
+        "server/.env{,/**}"
      ]
 }

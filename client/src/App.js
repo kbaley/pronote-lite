@@ -15,29 +15,17 @@ function App() {
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
   const [homework, setHomework] = React.useState([]);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [loading, setLoading] = React.useState(defaultLoading);
-
   const getStudentData = React.useCallback(() => {
-    setLoading({homework: true, timetable: true});
     axios.get('/api/homework')
       .then( (result) => {
         setHomework(result.data);
-        setLoading({
-          ...loading,
-          homework: false
-        });
       });
 
     axios.get('/api/timetable')
       .then( (result) => {
         setTimetable(result.data);
-        console.log(loading);
-        setLoading({
-          ...loading,
-          timetable: false
-        });
       });
-  }, [loading]);
+  }, []);
 
   React.useEffect(() => {
     axios.get('/api/checkSession')
@@ -78,7 +66,7 @@ function App() {
         </p>
         <p>
           <label htmlFor="password">Password</label>
-          <input name="password" id="password" value={password} onChange={handlePasswordChange}/>
+          <input type="password" name="password" id="password" value={password} onChange={handlePasswordChange}/>
         </p>
         <p>
           <button
@@ -91,9 +79,6 @@ function App() {
         }
         <p>
           {isLoggedIn ? "Logged in" : "Not logged in"}
-        </p>
-        <p>
-          {loading && (loading.homework === true || loading.timetable === true) ? "Loading data..." : ""}
         </p>
         <Timetable
           timetable={timetable}
