@@ -7,6 +7,7 @@ const auth = require('./auth.js');
 const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
+const path = require('path');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -22,6 +23,8 @@ app.use(sessions({
 }))
 
 var expressSession;
+
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 const jsonParser = bodyParser.json();
 
@@ -89,6 +92,10 @@ app.post("/api/login", jsonParser, async (req, res) => {
       username
     }
   });
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
