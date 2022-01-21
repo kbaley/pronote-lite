@@ -46,12 +46,20 @@ function App() {
   };
 
   const handleLoginResponse = (data) => {
+    setIsLoggedIn(true);
     getStudentData();
   }
 
   const login = async () => {
     const result = await axios.post('/api/login', {username, password})
     handleLoginResponse(result);
+  }
+
+  const logout = async () => {
+    await axios.post('/api/logout');
+    setIsLoggedIn(false);
+    setHomework([]);
+    setTimetable([]);
   }
 
   return (
@@ -80,6 +88,11 @@ function App() {
         <p>
           {isLoggedIn ? "Logged in" : "Not logged in"}
         </p>
+        { isLoggedIn &&
+        <p>
+          <button onClick={logout}>Log out</button>
+        </p>
+        }
         <Timetable
           timetable={timetable}
         />

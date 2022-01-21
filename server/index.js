@@ -30,8 +30,10 @@ const jsonParser = bodyParser.json();
 
 app.get("/api/timetable", authenticateToken, async (req, res) => {
   try {
+    const oneWeekFromNow = new Date();
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
-    const timetable = await session.timetable();
+    const timetable = await session.timetable(new Date(), oneWeekFromNow);
     res.json(timetable);
   } catch (error) {
     res.json(error);
@@ -46,7 +48,6 @@ app.get("/api/homework", authenticateToken, async (req, res) => {
     const session = await getSession(req);
     const homework = await session.homeworks(new Date(), oneWeekFromNow);
     res.json(homework);
-    console.log(homework);
   } catch (error) {
     res.json(error);
   }
@@ -92,6 +93,14 @@ app.post("/api/login", jsonParser, async (req, res) => {
       username
     }
   });
+});
+
+app.post("/api/logout", async (req, res) => {
+  if (req.session) {
+    req.session.destroy();
+    res.clearCookie("PLToken");
+    res.send({message: "Logged out"});
+  }
 });
 
 app.get('*', (req, res) => {
