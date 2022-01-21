@@ -4,7 +4,9 @@ const pronote = require('@dorian-eydoux/pronote-api');
 const bodyParser = require('body-parser');
 const jsonwebtoken = require('jsonwebtoken');
 const auth = require('./auth.js');
+const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
+const authenticateToken = require('./authenticateToken');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -12,10 +14,18 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
 const app = express();
 app.use(cookieParser());
+app.use(sessions({
+  secret: TOKEN_SECRET,
+  saveUninitialized: true,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 },
+  resave: false,
+}))
+
+var expressSession;
 
 const jsonParser = bodyParser.json();
 
-app.get("/api/timetable", async (req, res) => {
+app.get("/api/timetable", authenticateToken, async (req, res) => {
   try {
     const session = await getSession(req);
     const timetable = await session.timetable();
@@ -25,7 +35,7 @@ app.get("/api/timetable", async (req, res) => {
   }
 });
 
-app.get("/api/homework", async (req, res) => {
+app.get("/api/homework", authenticateToken, async (req, res) => {
   try {
 
     const oneWeekFromNow = new Date();
@@ -33,28 +43,39 @@ app.get("/api/homework", async (req, res) => {
     const session = await getSession(req);
     const homework = await session.homeworks(new Date(), oneWeekFromNow);
     res.json(homework);
+    console.log(homework);
   } catch (error) {
     res.json(error);
   }
 });
 
 const getSession = async (req) => {
-  if (!req.cookies || !req.cookies.PLToken) {
-    return null;
+  if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
+    throw new Error("No credentials found in session");
   }
-  const token = req.cookies.PLToken;
-  const decodedToken = jsonwebtoken.verify(token, TOKEN_SECRET);
-  const iv = Buffer.from(decodedToken.iv, "hex");
-  const password = auth.decrypt(decodedToken.key, iv);
-  const username = decodedToken.username;
+  const username = req.session.username;
+  const iv = Buffer.from(req.session.iv, "hex");
+  const password = auth.decrypt(req.session.password, iv);
   return await pronote.login(PRONOTE_URL, username, password);
 }
+
+app.get("/api/checkSession", (req, res) => {
+  if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
+    res.json({isLoggedIn: false});
+  } else {
+    res.json({isLoggedIn: true});
+  }
+});
 
 app.post("/api/login", jsonParser, async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const encrypted = auth.encrypt(password);
   const session = await pronote.login(PRONOTE_URL, username, password);
+  expressSession = req.session;
+  expressSession.username = username;
+  expressSession.password = encrypted.encryptedData.toString('hex');
+  expressSession.iv = encrypted.initVector.toString('hex');
   const authToken = jsonwebtoken.sign({
     username: username,
     key: encrypted.encryptedData.toString('hex'),

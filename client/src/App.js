@@ -4,12 +4,28 @@ import Timetable from './Timetable';
 import Homework from './Homework';
 import axios from 'axios';
 
+const defaultLoading = {
+  homework: false,
+  timetable: false
+}
+
 function App() {
-  const [data] = React.useState(null);
   const [timetable, setTimetable] = React.useState([]);
   const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
   const [homework, setHomework] = React.useState([]);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [loading, setLoading] = React.useState(defaultLoading);
+
+  React.useEffect(() => {
+    axios.get('/api/checkSession')
+      .then( (result) => {
+        setIsLoggedIn(result.data.isLoggedIn);
+        if (result.data.isLoggedIn) {
+          getStudentData();
+        }
+      });
+  }, []);
 
   const handleUserNameChange = (event) => {
     setUsername(event.target.value);
@@ -20,11 +36,25 @@ function App() {
   };
 
   const getStudentData = () => {
+    setLoading({homework: true, timetable: true});
     axios.get('/api/homework')
-      .then( (result) => setHomework(result.data));
+      .then( (result) => {
+        setHomework(result.data);
+        setLoading({
+          ...loading,
+          homework: false
+        });
+      });
 
     axios.get('/api/timetable')
-      .then( (result) => setTimetable(result.data));
+      .then( (result) => {
+        setTimetable(result.data);
+        console.log(loading);
+        // setLoading({
+          // ...loading,
+          // timetable: false
+        // });
+      });
   }
 
   const handleLoginResponse = (data) => {
@@ -39,6 +69,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        { !isLoggedIn && 
+        <React.Fragment>
         <p>
           <label htmlFor="username">Username</label>
           <input name="username" id="username" value={username} onChange={handleUserNameChange}/>
@@ -55,8 +87,13 @@ function App() {
             Log in
           </button>
         </p>
+        </React.Fragment>
+        }
         <p>
-          {!data ? "" : "Logged in"}
+          {isLoggedIn ? "Logged in" : "Not logged in"}
+        </p>
+        <p>
+          {loading && (loading.homework === true || loading.timetable === true) ? "Loading data..." : ""}
         </p>
         <Timetable
           timetable={timetable}
