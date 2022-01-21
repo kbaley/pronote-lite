@@ -13,7 +13,7 @@ const Homework  = ({homework}) => {
           <td>
             {entry.files.map( (file, i ) => (
               <div key={file.id}>
-                <a href={file.url} target="_blank">File {i+1}</a>
+                <a href={file.url} target="_blank" rel="noreferrer">File {i+1}</a>
               </div>
             ))}
           </td>

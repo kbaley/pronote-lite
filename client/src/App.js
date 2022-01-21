@@ -17,25 +17,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [loading, setLoading] = React.useState(defaultLoading);
 
-  React.useEffect(() => {
-    axios.get('/api/checkSession')
-      .then( (result) => {
-        setIsLoggedIn(result.data.isLoggedIn);
-        if (result.data.isLoggedIn) {
-          getStudentData();
-        }
-      });
-  }, []);
-
-  const handleUserNameChange = (event) => {
-    setUsername(event.target.value);
-  }
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-
-  const getStudentData = () => {
+  const getStudentData = React.useCallback(() => {
     setLoading({homework: true, timetable: true});
     axios.get('/api/homework')
       .then( (result) => {
@@ -50,12 +32,30 @@ function App() {
       .then( (result) => {
         setTimetable(result.data);
         console.log(loading);
-        // setLoading({
-          // ...loading,
-          // timetable: false
-        // });
+        setLoading({
+          ...loading,
+          timetable: false
+        });
       });
+  }, [loading]);
+
+  React.useEffect(() => {
+    axios.get('/api/checkSession')
+      .then( (result) => {
+        setIsLoggedIn(result.data.isLoggedIn);
+        if (result.data.isLoggedIn) {
+          getStudentData();
+        }
+      });
+  }, [getStudentData]);
+
+  const handleUserNameChange = (event) => {
+    setUsername(event.target.value);
   }
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
 
   const handleLoginResponse = (data) => {
     getStudentData();
