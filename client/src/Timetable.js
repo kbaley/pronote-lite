@@ -1,6 +1,16 @@
 import { Box, Card, Typography } from '@mui/material';
 import moment from 'moment';
 
+const titleSx = {
+  mt: 1,
+  py: {
+    md: 2,
+    xs: 1,
+  },
+  pl: 2,
+  fontSize: 20,
+  backgroundColor: '#ddd',
+}
 const boxSx = {
   display: 'inline-block',
   mx: '5px',
@@ -38,6 +48,12 @@ const Timetable  = ({timetable, offset}) => {
       component="span"
       sx={boxSx}
     >
+      <Typography
+        sx={titleSx}
+        component="h1"
+      >
+        Timetable
+      </Typography>
       {timetable.map((entry) => (
         <Card
           key={entry.id}
