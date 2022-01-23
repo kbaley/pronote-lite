@@ -4,6 +4,7 @@ import Timetable from './Timetable';
 import Homework from './Homework';
 import axios from 'axios';
 import LoginForm from './LoginForm';
+import { Grid } from '@mui/material';
 
 function App() {
   const [timetable, setTimetable] = React.useState([]);
@@ -33,22 +34,34 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <LoginForm
-          loginSuccess={login}
-          logoutSuccess={logout}
-          setTimezoneOffset={setTimezoneOffset}
-        />
-        <Timetable
-          timetable={timetable}
-          offset={timezoneOffset}
-        />
-
-        <Homework
-          homework={homework}
-          offset={timezoneOffset}
-        />
-      </header>
+      <LoginForm
+        loginSuccess={login}
+        logoutSuccess={logout}
+        setTimezoneOffset={setTimezoneOffset}
+      />
+      <Grid
+        container
+        space={2}
+      >
+        <Grid item
+          md={2}
+          xs={12}
+        >
+          <Timetable
+            timetable={timetable}
+            offset={timezoneOffset}
+          />
+        </Grid>
+        <Grid item
+          md={10}
+          xs={12}
+        >
+          <Homework
+            homework={homework}
+            offset={timezoneOffset}
+          />
+        </Grid>
+      </Grid>
     </div>
   );
 }

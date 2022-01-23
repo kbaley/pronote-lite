@@ -85,9 +85,6 @@ const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
       </div>
       </React.Fragment>
       }
-      <div>
-        {isLoggedIn ? "Logged in" : "Not logged in"}
-      </div>
       { isLoggedIn &&
       <div>
         <Button
