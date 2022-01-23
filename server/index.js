@@ -34,6 +34,10 @@ app.get("/api/timetable", authenticateToken, async (req, res) => {
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
     const timetable = await session.timetable(new Date(), oneWeekFromNow);
+    timetable.map( (entry) => {
+      entry.fromDate = pronote.toPronoteDate(entry.from);
+      entry.toDate = pronote.toPronoteDate(entry.to);
+    });
     res.json(timetable);
   } catch (error) {
     res.json(error);
@@ -47,6 +51,9 @@ app.get("/api/homework", authenticateToken, async (req, res) => {
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
     const homework = await session.homeworks(new Date(), oneWeekFromNow);
+    homework.map( (entry) => {
+      entry.forDate = pronote.toPronoteDate(entry.for);
+    })
     res.json(homework);
   } catch (error) {
     res.json(error);
@@ -65,9 +72,15 @@ const getSession = async (req) => {
 
 app.get("/api/checkSession", (req, res) => {
   if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
-    res.json({isLoggedIn: false});
+    res.json({
+      isLoggedIn: false, 
+      timezoneOffset: new Date().getTimezoneOffset()
+    });
   } else {
-    res.json({isLoggedIn: true});
+    res.json({
+      isLoggedIn: true, 
+      timezoneOffset: new Date().getTimezoneOffset()
+    });
   }
 });
 
@@ -90,6 +103,7 @@ app.post("/api/login", jsonParser, async (req, res) => {
     user: {
       id: session.user.id,
       name: session.user.name,
+      date: new Date(),
       username
     }
   });
@@ -108,6 +122,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`PRONOTE URL: ${PRONOTE_URL}`);
-    console.log(`Server listening on ${PORT}`);
+  console.log(`PRONOTE URL: ${PRONOTE_URL}`);
+  console.log(`Server listening on ${PORT}`);
 });

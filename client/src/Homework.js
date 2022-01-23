@@ -1,12 +1,12 @@
 import moment from 'moment';
 
-const Homework  = ({homework}) => {
+const Homework  = ({homework, offset}) => {
   return (
     <table>
       <tbody>
       {homework.map((entry) => (
         <tr key={entry.id}>
-          <td>{moment(entry.for).format('ddd, MMM DD')}</td>
+          <td>{moment(entry.for).add(offset, 'minutes').format('ddd, MMM DD')}</td>
           <td>{entry.subject}</td>
           <td style={{width: "450px"}}>{entry.description}</td>
           <td>{entry.done ? "Done" : ""}</td>

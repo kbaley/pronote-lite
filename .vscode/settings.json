@@ -1,5 +1,4 @@
 {
-    "appService.defaultWebAppToDeploy": "/subscriptions/b45daf2a-6dc7-4454-8b90-38b4a2589d68/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/pronote-lite",
     "appService.deploySubpath": ".",
     "appService.zipIgnorePattern": [
         "node_modules{,/**}",
@@ -12,5 +11,6 @@
         "client/.env{,/**}",
         "server/.env.local{,/**}",
         "server/.env{,/**}"
-     ]
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/b45daf2a-6dc7-4454-8b90-38b4a2589d68/resourceGroups/pronote-lite/providers/Microsoft.Web/sites/pronote-lite"
 }

@@ -4,17 +4,14 @@ import Timetable from './Timetable';
 import Homework from './Homework';
 import axios from 'axios';
 
-const defaultLoading = {
-  homework: false,
-  timetable: false
-}
-
 function App() {
   const [timetable, setTimetable] = React.useState([]);
   const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
   const [homework, setHomework] = React.useState([]);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [timezoneOffset, setTimezoneOffset] = React.useState(0);
+  const serverTimezoneOffset = new Date().getTimezoneOffset();
   const getStudentData = React.useCallback(() => {
     axios.get('/api/homework')
       .then( (result) => {
@@ -31,6 +28,7 @@ function App() {
     axios.get('/api/checkSession')
       .then( (result) => {
         setIsLoggedIn(result.data.isLoggedIn);
+        setTimezoneOffset(new Date().getTimezoneOffset() - result.data.timezoneOffset);
         if (result.data.isLoggedIn) {
           getStudentData();
         }
@@ -95,10 +93,12 @@ function App() {
         }
         <Timetable
           timetable={timetable}
+          offset={timezoneOffset}
         />
 
         <Homework
           homework={homework}
+          offset={timezoneOffset}
         />
       </header>
     </div>
