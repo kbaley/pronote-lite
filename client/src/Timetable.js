@@ -1,6 +1,9 @@
+import React from 'react';
+
 import { Box, Card, Typography } from '@mui/material';
 import moment from 'moment';
 import Header from './Header';
+import { groupBy } from 'lodash';
 
 const boxSx = {
   display: 'inline-block',
@@ -34,13 +37,24 @@ const teacherSx = {
 }
 
 const Timetable  = ({timetable, offset}) => {
+  const [firstDay, setFirstDay] = React.useState([]);
+
+  React.useEffect(() => {
+    const getDateWithoutTime = (date) => {
+      return moment(date).add(offset, 'minutes').format('MMM DD');
+    }
+    const grouped = groupBy(timetable, (entry) => getDateWithoutTime(entry.from));
+    const keys = Object.keys(grouped);
+    setFirstDay(timetable.length > 0 ? grouped[keys[0]] : []);
+  }, [timetable, offset]);
+
   return (
     <Box
       component="span"
       sx={boxSx}
     >
       <Header text="Timetable" />
-      {timetable.map((entry) => (
+      {firstDay.map((entry) => (
         <Card
           key={entry.id}
           sx={cardSx}
