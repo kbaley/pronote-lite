@@ -5,8 +5,18 @@ const subjectSx = {
   fontWeight: 600,
   mt: {
     md: 0,
-    xs: 3,
+    xs: 1,
   },
+  px: 1,
+}
+
+const cardSx = {
+  px: 1,
+}
+
+const doneSx = {
+  backgroundColor: '#eef6ee',
+  pb: 1,
 }
 
 const HomeworkDay = ({entries}) => {
@@ -20,24 +30,28 @@ const HomeworkDay = ({entries}) => {
           <Grid item
             md={2}
             xs={12}
+            sx={entry.done ? doneSx : null}
           >
             <Typography component="h3" sx={subjectSx}>{entry.subject}</Typography>
           </Grid>
           <Grid item
             md={9}
             xs={12}
+            sx={entry.done ? doneSx : null}
           >
-            {entry.description}
+            <Typography sx={cardSx}>{entry.description}</Typography>
           </Grid>
           <Grid item
             md={1}
             xs={12}
           >
+            <Typography sx={cardSx}>
             {entry.files.map( (file, i ) => (
               <div key={file.id}>
                 <a href={file.url} target="_blank" rel="noreferrer">File {i+1}</a>
               </div>
             ))}
+            </Typography>
           </Grid>
         </React.Fragment>
       ))}

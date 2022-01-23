@@ -13,7 +13,7 @@ const boxSx = {
 const dateSx = {
   fontSize: 20,
   mt: 3,
-  mb: 1,
+  mb: 2,
   p: 1,
   backgroundColor: '#ececec'
 }
