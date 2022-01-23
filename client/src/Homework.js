@@ -1,26 +1,41 @@
+import React from 'react';
 import moment from 'moment';
+import { Box, Grid, Typography } from '@mui/material';
+import Header from './Header';
+import { groupBy } from 'lodash';
+import HomeworkDay from './HomeworkDay';
+
+const boxSx = {
+  display: 'inline-block',
+  mx: '5px',
+}
+
+const dateSx = {
+  fontSize: 20,
+  mt: 3,
+  mb: 1,
+  p: 1,
+  backgroundColor: '#ececec'
+}
 
 const Homework  = ({homework, offset}) => {
+
+  const grouped = groupBy(homework, 'for');
+  const keys = Object.keys(grouped);
+
   return (
-    <table>
-      <tbody>
-      {homework.map((entry) => (
-        <tr key={entry.id}>
-          <td>{moment(entry.for).add(offset, 'minutes').format('ddd, MMM DD')}</td>
-          <td>{entry.subject}</td>
-          <td style={{width: "450px"}}>{entry.description}</td>
-          <td>{entry.done ? "Done" : ""}</td>
-          <td>
-            {entry.files.map( (file, i ) => (
-              <div key={file.id}>
-                <a href={file.url} target="_blank" rel="noreferrer">File {i+1}</a>
-              </div>
-            ))}
-          </td>
-        </tr>
+    <Box
+      component="span"
+      sx={boxSx}
+    >
+      <Header text="Homework" />
+      {keys.map((key) => (
+        <React.Fragment key={key}>
+          <Typography component="h2" sx={dateSx}>{moment(key).add(offset, 'minutes').format('ddd, MMM DD')}</Typography>
+          <HomeworkDay entries={grouped[key]} />
+        </React.Fragment>
       ))}
-      </tbody>
-    </table>
+    </Box>
   )
 }
 

@@ -41,7 +41,7 @@ function App() {
       />
       <Grid
         container
-        space={2}
+        spacing={2}
       >
         <Grid item
           md={2}
