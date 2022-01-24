@@ -16,17 +16,19 @@ function App() {
   const getStudentData = React.useCallback(() => {
     setIsTimetableLoading(true);
     setIsHomeworkLoading(true);
-    axios.get('/api/homework')
-      .then( (result) => {
-        setHomework(result.data);
-        setIsHomeworkLoading(false);
-      });
 
     axios.get('/api/timetable')
       .then( (result) => {
         setTimetable(result.data);
         setIsTimetableLoading(false);
       });
+
+    axios.get('/api/homework')
+      .then( (result) => {
+        setHomework(result.data);
+        setIsHomeworkLoading(false);
+      });
+
   }, []);
 
   const login = () => {

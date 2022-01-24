@@ -28,21 +28,44 @@ app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 const jsonParser = bodyParser.json();
 
+const getTodayWithoutTime = () => {
+  const today = new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+
+  return today;
+}
+
 app.get("/api/timetable", authenticateToken, async (req, res) => {
   try {
-    const oneWeekFromNow = new Date();
+    const today = getTodayWithoutTime();
+    const oneWeekFromNow = new Date(today);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
-    const session = await getSession(req);
-    const timetable = await session.timetable(new Date(), oneWeekFromNow);
-    timetable.map( (entry) => {
-      entry.fromDate = pronote.toPronoteDate(entry.from);
-      entry.toDate = pronote.toPronoteDate(entry.to);
-    });
-    res.json(timetable);
+    const cachedTimetable = getCachedTimetable(req);
+    if (cachedTimetable === null || cachedTimetable === '') {
+      const session = await getSession(req);
+      const timetable = await session.timetable(today, oneWeekFromNow);
+      timetable.map( (entry) => {
+        entry.fromDate = pronote.toPronoteDate(entry.from);
+        entry.toDate = pronote.toPronoteDate(entry.to);
+      });
+      req.session.timetable = JSON.stringify(timetable);
+      res.json(timetable);
+    } else {
+      res.json(JSON.parse(cachedTimetable));
+    }
   } catch (error) {
     res.json(error);
   }
 });
+
+const getCachedTimetable = (req) => {
+  if (!req.session || !req.session.timetable) {
+    return null;
+  }
+  return req.session.timetable;
+}
 
 app.get("/api/homework", authenticateToken, async (req, res) => {
   try {
@@ -73,12 +96,12 @@ const getSession = async (req) => {
 app.get("/api/checkSession", (req, res) => {
   if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
     res.json({
-      isLoggedIn: false, 
+      isLoggedIn: false,
       timezoneOffset: new Date().getTimezoneOffset()
     });
   } else {
     res.json({
-      isLoggedIn: true, 
+      isLoggedIn: true,
       timezoneOffset: new Date().getTimezoneOffset()
     });
   }
