@@ -28,7 +28,10 @@ const Homework  = ({homework, offset}) => {
       component="span"
       sx={boxSx}
     >
-      <Header text="Homework" />
+      <Header 
+        text="Homework" 
+        visible={homework.length > 0}
+      />
       {keys.map((key) => (
         <React.Fragment key={key}>
           <Typography component="h2" sx={dateSx}>{moment(key).add(offset, 'minutes').format('ddd, MMM DD')}</Typography>

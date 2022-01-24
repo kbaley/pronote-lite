@@ -53,7 +53,7 @@ const Timetable  = ({timetable, offset}) => {
       component="span"
       sx={boxSx}
     >
-      <Header text="Timetable" />
+      <Header text="Timetable" visible={timetable.length > 0} />
       {firstDay.map((entry) => (
         <Card
           key={entry.id}

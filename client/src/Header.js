@@ -11,11 +11,12 @@ const titleSx = {
   backgroundColor: '#ddd',
 }
 
-const Header = ({text}) => {
+const Header = ({text, visible}) => {
   return (
     <Typography
       sx={titleSx}
       component="h1"
+      style={{ display: visible ? "block" : "none"}}
     >
       {text}
     </Typography>

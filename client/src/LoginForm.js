@@ -8,6 +8,7 @@ const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
   const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
 
   React.useEffect(() => {
     if (!isLoggedIn) {
@@ -20,7 +21,7 @@ const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
           }
         });
     }
-  }, [loginSuccess, setTimezoneOffset]);
+  }, [loginSuccess, setTimezoneOffset, isLoggedIn]);
 
   const handleUserNameChange = (event) => {
     setUsername(event.target.value);
@@ -36,8 +37,10 @@ const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
   }
 
   const login = async () => {
+    setIsLoggingIn(true);
     const result = await axios.post('/api/login', {username, password})
     handleLoginResponse(result);
+    setIsLoggingIn(false);
   }
 
   const logout = async () => {
@@ -83,6 +86,7 @@ const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
           Log in
         </Button>
       </div>
+      <div>{isLoggingIn ? "Logging in..." : ""}</div>
       </React.Fragment>
       }
       { isLoggedIn &&
