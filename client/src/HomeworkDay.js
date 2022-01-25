@@ -8,6 +8,7 @@ const subjectSx = {
     xs: 1,
   },
   px: 1,
+  fontSize: 14,
 }
 
 const cardSx = {
@@ -32,20 +33,20 @@ const HomeworkDay = ({entries}) => {
             xs={12}
             sx={entry.done ? doneSx : null}
           >
-            <Typography component="h3" sx={subjectSx}>{entry.subject}</Typography>
+            <Typography component="h2" sx={subjectSx}>{entry.subject}</Typography>
           </Grid>
           <Grid item
             md={9}
             xs={12}
             sx={entry.done ? doneSx : null}
           >
-            <Typography sx={cardSx}>{entry.description}</Typography>
+            <Typography component="div" sx={cardSx} variant="body2">{entry.description}</Typography>
           </Grid>
           <Grid item
             md={1}
             xs={12}
           >
-            <Typography sx={cardSx}>
+            <Typography component="div" sx={cardSx} variant="body2">
             {entry.files.map( (file, i ) => (
               <div key={file.id}>
                 <a href={file.url} target="_blank" rel="noreferrer">File {i+1}</a>
