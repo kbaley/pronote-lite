@@ -3,7 +3,7 @@ import React from 'react';
 import { Box, Card, Typography } from '@mui/material';
 import moment from 'moment';
 import Header from './Header';
-import { groupBy } from 'lodash';
+import { groupBy, filter } from 'lodash';
 
 const boxSx = {
   display: 'inline-block',
@@ -43,7 +43,15 @@ const Timetable  = ({timetable, offset}) => {
     const getDateWithoutTime = (date) => {
       return moment(date).add(offset, 'minutes').format('MMM DD');
     }
-    const grouped = groupBy(timetable, (entry) => getDateWithoutTime(entry.from));
+
+    const dateToUse = new Date();
+    if (dateToUse.getHours() > 14) {
+      dateToUse.setDate(dateToUse.getDate() + 1);
+    }
+    const date = getDateWithoutTime(dateToUse);
+
+    const filtered = filter(timetable, (entry) => getDateWithoutTime(entry.from) === date);
+    const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
     const keys = Object.keys(grouped);
     setFirstDay(timetable.length > 0 ? grouped[keys[0]] : []);
   }, [timetable, offset]);
