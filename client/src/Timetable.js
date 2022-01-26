@@ -11,34 +11,17 @@ const boxSx = {
 const Timetable  = ({timetable, offset}) => {
   const [firstDay, setFirstDay] = React.useState([]);
   const [date, setDate] = React.useState("");
-  const [endTime, setEndTime] = React.useState(new Date(0));
 
   React.useEffect(() => {
     const getDateWithoutTime = (date) => {
       return moment(date).add(offset, 'minutes').format('MMM DD');
     }
 
-    const dateToUse = new Date();
-    if (dateToUse.getHours() >= 14) {
-      dateToUse.setDate(dateToUse.getDate() + 1);
-    }
-    let startDate = new Date(dateToUse);
-    startDate.setHours(7);
-    startDate.setMinutes(30);
-    startDate.setSeconds(0);
-    setEndTime(startDate);
-    const dateFormatted = getDateWithoutTime(dateToUse);
-    setDate(dateFormatted);
-
-    const filtered = filter(timetable, (entry) => getDateWithoutTime(entry.from) === dateFormatted);
-    const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
-    const keys = Object.keys(grouped);
-    if (timetable.length > 0) {
+    const getBreaks = (dayEntries, endTime) => {
       const newEntries = [];
-      const dayEntries = clone(grouped[keys[0]]);
       for (let i = 0; i < dayEntries.length; i++) {
         const dayEntry = dayEntries[i];
-        const diff = Math.abs(moment(startDate).diff(moment(dayEntry.from), 'minutes'));
+        const diff = Math.abs(moment(endTime).diff(moment(dayEntry.from), 'minutes'));
         if (diff > 10) {
           newEntries.push({
             from: startDate,
@@ -49,12 +32,31 @@ const Timetable  = ({timetable, offset}) => {
             id: Math.random(),
           });
         }
-        startDate = dayEntry.to;
+        endTime = dayEntry.to;
       }
+      return newEntries;
+    }
+
+    const dateToUse = new Date();
+    if (dateToUse.getHours() >= 14) {
+      dateToUse.setDate(dateToUse.getDate() + 1);
+    }
+    let startDate = new Date(dateToUse);
+    startDate.setHours(7);
+    startDate.setMinutes(30);
+    startDate.setSeconds(0);
+    const dateFormatted = getDateWithoutTime(dateToUse);
+    setDate(dateFormatted);
+
+    const filtered = filter(timetable, (entry) => getDateWithoutTime(entry.from) === dateFormatted);
+    const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
+    const keys = Object.keys(grouped);
+    if (timetable.length > 0) {
+      const dayEntries = clone(grouped[keys[0]]);
+      const newEntries = getBreaks(dayEntries, startDate);
       forEachRight(newEntries, newEntry => {
         dayEntries.splice(newEntry.position, 0, newEntry);
       });
-      console.log(dayEntries);
       setFirstDay(dayEntries);
     } else {
       setFirstDay([]);
@@ -71,7 +73,6 @@ const Timetable  = ({timetable, offset}) => {
       {firstDay.map((entry) => (
         <TimetableEntry
           entry={entry}
-          endTime={endTime}
           offset={offset}
           key={entry.id}
         />

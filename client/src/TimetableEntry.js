@@ -52,7 +52,7 @@ const teacherSx = {
 }
 
 
-const TimetableEntry = ({entry, endTime, offset}) => {
+const TimetableEntry = ({entry, offset}) => {
 
   return (
     <Card
