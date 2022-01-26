@@ -32,14 +32,7 @@ const cardSx = (backgroundColor) => {
     my: 0,
     border: `0 solid ${backgroundColor}`,
     borderRadius: 0,
-    padding: {
-      md: 0,
-      xs: 0.5,
-    },
-    transform: {
-      md: 'scale(1.0)',
-      xs: 'scale(0.8)'
-    },
+    p: 0,
     textAlign: 'center',
     alignItems: 'center',
     backgroundColor: `rgba(${hexToRgb(backgroundColor)}0.1)`,
@@ -48,11 +41,17 @@ const cardSx = (backgroundColor) => {
 }
 
 const dateSx = {
-  fontSize: 18,
+  fontSize: {
+    md: 18,
+    xs: 16,
+  },
 }
 
 const subjectSx = {
-  fontSize: 16,
+  fontSize: {
+    md: 16,
+    xs: 14,
+  },
 }
 
 const teacherSx = {
@@ -95,13 +94,13 @@ const Timetable  = ({timetable, offset}) => {
           sx={cardSx(entry.color)}
         >
           <Box sx={{display: 'flex', flexDirection: 'column'}}>
-            <CardContent sx={{ flex: '1 0 auto' }}>
+            <CardContent sx={{ flex: '1 0 auto', borderRight: `1px solid ${entry.color}`,  }}>
               <Typography color="text.primary" sx={dateSx} variant="body2" component="div">
                 {moment(entry.from).add(offset, 'minutes').format('HH:mm')}
               </Typography>
             </CardContent>
           </Box>
-          <CardContent sx={{width: '100%', borderLeft: `1px solid ${entry.color}`}}>
+          <CardContent sx={{width: '100%', p: 0, '&:last-child': { pb: 0 }}}>
               <Typography color="text.primary" sx={subjectSx} variant="body2" component="div">
                 {entry.subject}
               </Typography>
