@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material"
+import { Grid, Typography, Link, Button } from "@mui/material"
 import React from "react"
 
 const subjectSx = {
@@ -36,21 +36,27 @@ const HomeworkDay = ({entries}) => {
             <Typography component="h2" sx={subjectSx}>{entry.subject}</Typography>
           </Grid>
           <Grid item
-            md={9}
+            md={7}
             xs={12}
             sx={entry.done ? doneSx : null}
           >
             <Typography component="div" sx={cardSx} variant="body2">{entry.description}</Typography>
           </Grid>
           <Grid item
-            md={1}
+            md={3}
             xs={12}
           >
             <Typography component="div" sx={cardSx} variant="body2">
             {entry.files.map( (file, i ) => (
-              <div key={file.id}>
-                <a href={file.url} target="_blank" rel="noreferrer">File {i+1}</a>
-              </div>
+              <Link
+                href={file.url}
+                target="blank"
+                rel="noreferrer"
+                sx={{display: "block"}}
+                key={file.id}
+              >
+                {file.name}
+              </Link>
             ))}
             </Typography>
           </Grid>
