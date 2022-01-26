@@ -46,10 +46,6 @@ app.get("/api/timetable", authenticateToken, async (req, res) => {
     if (cachedTimetable === null || cachedTimetable === '') {
       const session = await getSession(req);
       const timetable = await session.timetable(today, oneWeekFromNow);
-      timetable.map( (entry) => {
-        entry.fromDate = pronote.toPronoteDate(entry.from);
-        entry.toDate = pronote.toPronoteDate(entry.to);
-      });
       req.session.timetable = JSON.stringify(timetable);
       res.json(timetable);
     } else {
@@ -74,9 +70,6 @@ app.get("/api/homework", authenticateToken, async (req, res) => {
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
     const homework = await session.homeworks(new Date(), oneWeekFromNow);
-    homework.map( (entry) => {
-      entry.forDate = pronote.toPronoteDate(entry.for);
-    })
     res.json(homework);
   } catch (error) {
     res.json(error);

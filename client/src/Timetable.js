@@ -1,66 +1,17 @@
 import React from 'react';
-import { Box, Card, CardContent, CardActionArea, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import moment from 'moment';
 import Header from './Header';
-import { groupBy, filter } from 'lodash';
-
-const hexToRgb = (hex) => {
-  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-    return r + r + g + g + b + b;
-  });
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  const json = result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : null;
-  if (json) {
-    return `${json.r}, ${json.g}, ${json.b}, `;
-  }
-}
-
+import TimetableEntry from './TimetableEntry';
+import { groupBy, forEachRight, clone, filter } from 'lodash';
 const boxSx = {
   display: 'inline-block',
   mx: '5px',
 }
-const cardSx = (backgroundColor) => {
-  return (
-  {
-    my: 0,
-    border: `0 solid ${backgroundColor}`,
-    borderRadius: 0,
-    p: 0,
-    textAlign: 'center',
-    alignItems: 'center',
-    backgroundColor: `rgba(${hexToRgb(backgroundColor)}0.1)`,
-    display: 'flex',
-  })
-}
-
-const dateSx = {
-  fontSize: {
-    md: 18,
-    xs: 16,
-  },
-}
-
-const subjectSx = {
-  fontSize: {
-    md: 16,
-    xs: 14,
-  },
-}
-
-const teacherSx = {
-  fontSize: 12,
-}
-
 const Timetable  = ({timetable, offset}) => {
   const [firstDay, setFirstDay] = React.useState([]);
   const [date, setDate] = React.useState("");
+  const [endTime, setEndTime] = React.useState(new Date(0));
 
   React.useEffect(() => {
     const getDateWithoutTime = (date) => {
@@ -68,16 +19,46 @@ const Timetable  = ({timetable, offset}) => {
     }
 
     const dateToUse = new Date();
-    if (dateToUse.getHours() > 14) {
+    if (dateToUse.getHours() >= 14) {
       dateToUse.setDate(dateToUse.getDate() + 1);
     }
+    let startDate = new Date(dateToUse);
+    startDate.setHours(7);
+    startDate.setMinutes(30);
+    startDate.setSeconds(0);
+    setEndTime(startDate);
     const dateFormatted = getDateWithoutTime(dateToUse);
     setDate(dateFormatted);
 
     const filtered = filter(timetable, (entry) => getDateWithoutTime(entry.from) === dateFormatted);
     const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
     const keys = Object.keys(grouped);
-    setFirstDay(timetable.length > 0 ? grouped[keys[0]] : []);
+    if (timetable.length > 0) {
+      const newEntries = [];
+      const dayEntries = clone(grouped[keys[0]]);
+      for (let i = 0; i < dayEntries.length; i++) {
+        const dayEntry = dayEntries[i];
+        const diff = Math.abs(moment(startDate).diff(moment(dayEntry.from), 'minutes'));
+        if (diff > 10) {
+          newEntries.push({
+            from: startDate,
+            subject: 'BREAK',
+            teacher: '',
+            color: '#eee',
+            position: i,
+            id: Math.random(),
+          });
+        }
+        startDate = dayEntry.to;
+      }
+      forEachRight(newEntries, newEntry => {
+        dayEntries.splice(newEntry.position, 0, newEntry);
+      });
+      console.log(dayEntries);
+      setFirstDay(dayEntries);
+    } else {
+      setFirstDay([]);
+    }
   }, [timetable, offset]);
 
   return (
@@ -88,27 +69,12 @@ const Timetable  = ({timetable, offset}) => {
       <Header text="Timetable" visible={timetable.length > 0} />
       <Typography variant="h6" sx={{textAlign: 'center'}}>{firstDay.length > 0 ? date : ""}</Typography>
       {firstDay.map((entry) => (
-        <Card
+        <TimetableEntry
+          entry={entry}
+          endTime={endTime}
+          offset={offset}
           key={entry.id}
-          variant="outlined"
-          sx={cardSx(entry.color)}
-        >
-          <Box sx={{display: 'flex', flexDirection: 'column'}}>
-            <CardContent sx={{ flex: '1 0 auto', borderRight: `1px solid ${entry.color}`,  }}>
-              <Typography color="text.primary" sx={dateSx} variant="body2" component="div">
-                {moment(entry.from).add(offset, 'minutes').format('HH:mm')}
-              </Typography>
-            </CardContent>
-          </Box>
-          <CardContent sx={{width: '100%', p: 0, '&:last-child': { pb: 0 }}}>
-              <Typography color="text.primary" sx={subjectSx} variant="body2" component="div">
-                {entry.subject}
-              </Typography>
-              <Typography color="text.secondary" sx={teacherSx} variant="body2" component="div">
-                {entry.teacher}
-              </Typography>
-          </CardContent>
-        </Card>
+        />
       ))}
     </Box>
   )
