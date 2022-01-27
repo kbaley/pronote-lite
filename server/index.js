@@ -33,6 +33,7 @@ const getTodayWithoutTime = () => {
   today.setHours(0);
   today.setMinutes(0);
   today.setSeconds(0);
+  today.setMilliseconds(0);
 
   return today;
 }
@@ -65,11 +66,11 @@ const getCachedTimetable = (req) => {
 
 app.get("/api/homework", authenticateToken, async (req, res) => {
   try {
-
-    const oneWeekFromNow = new Date();
+    const today = getTodayWithoutTime();
+    const oneWeekFromNow = new Date(today);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
-    const homework = await session.homeworks(new Date(), oneWeekFromNow);
+    const homework = await session.homeworks(today, oneWeekFromNow);
     res.json(homework);
   } catch (error) {
     res.json(error);

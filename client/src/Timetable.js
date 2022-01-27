@@ -24,7 +24,7 @@ const Timetable  = ({timetable, offset}) => {
         const diff = Math.abs(moment(endTime).diff(moment(dayEntry.from), 'minutes'));
         if (diff > 10) {
           newEntries.push({
-            from: startDate,
+            from: moment(startDate).add(offset, 'minutes'),
             subject: 'BREAK',
             teacher: '',
             color: '#eee',
@@ -42,7 +42,7 @@ const Timetable  = ({timetable, offset}) => {
       dateToUse.setDate(dateToUse.getDate() + 1);
     }
     let startDate = new Date(dateToUse);
-    startDate.setHours(7);
+    startDate.setHours(7 - (offset / 60));
     startDate.setMinutes(30);
     startDate.setSeconds(0);
     const dateFormatted = getDateWithoutTime(dateToUse);
