@@ -8,6 +8,7 @@ const sessions = require('express-session');
 const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
+const { DateTime } = require('luxon');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -47,6 +48,21 @@ app.get("/api/timetable", authenticateToken, async (req, res) => {
     if (cachedTimetable === null || cachedTimetable === '') {
       const session = await getSession(req);
       const timetable = await session.timetable(today, oneWeekFromNow);
+      // The from and to dates ignore the timezone of the server where this is retrieved. E.g. if a
+      // class starts at 7:30AM time on January 1 in the school's time zone, then the from time
+      // retrieved from the server is "January 1, 2022 7:30AM". If the server is in a different time zone
+      // than the school, this causes problems. E.g. if the school is in Panama (-0500) and the server
+      // is in London, then the from time for the previous example will get returned as 
+      // "January 1, 2022 7:30AM" in the server's time zone which is actually "January 1, 2022 2:30AM" in
+      // the local (Panamanian) time zone. To combat this, we add another parameter to each entry
+      // that strips the time zone off. It will be added back in on the client so as long as the client
+      // is in the school's time zone, this will work.
+      for (let i = 0; i < timetable.length; i++) {
+        const entry = timetable[i];
+        entry.fromNoTimezone = DateTime.fromJSDate(entry.from).toLocaleString(DateTime.DATETIME_MED);
+        entry.toNoTimezone = DateTime.fromJSDate(entry.to).toLocaleString(DateTime.DATETIME_MED);
+      }
+      console.log(timetable);
       req.session.timetable = JSON.stringify(timetable);
       res.json(timetable);
     } else {

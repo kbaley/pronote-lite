@@ -5,13 +5,27 @@ import Homework from './Homework';
 import axios from 'axios';
 import LoginForm from './LoginForm';
 import { Grid, Typography } from '@mui/material';
+import { forEach, filter } from 'lodash';
+import moment from 'moment';
 
 function App() {
   const [timetable, setTimetable] = React.useState([]);
   const [homework, setHomework] = React.useState([]);
-  const [timezoneOffset, setTimezoneOffset] = React.useState(0);
   const [isTimetableLoading, setIsTimetableLoading] = React.useState(false);
   const [isHomeworkLoading, setIsHomeworkLoading] = React.useState(false);
+
+  const getDefaultDate = () => {
+
+    let today = new Date();
+    if (today.getHours() >= 14) {
+      today.setDate(today.getDate() + 1);
+    }
+    today.setHours(0);
+    today.setMinutes(0);
+    today.setSeconds(0);
+    today.setMilliseconds(0);
+    return today;
+  }
 
   const getStudentData = React.useCallback(() => {
     setIsTimetableLoading(true);
@@ -19,7 +33,15 @@ function App() {
 
     axios.get('/api/timetable')
       .then( (result) => {
-        setTimetable(result.data);
+        const defaultDate = getDefaultDate();
+        const data = filter(result.data, (entry) => new Date(entry.from) >= defaultDate);
+        moment.suppressDeprecationWarnings = true;
+        forEach(data, entry => {
+          entry.from = moment(entry.fromNoTimezone).toDate();
+          entry.to = moment(entry.toNoTimezone).toDate();;
+        });
+        moment.suppressDeprecationWarnings = false;
+        setTimetable(data);
         setIsTimetableLoading(false);
       });
 
@@ -45,7 +67,6 @@ function App() {
       <LoginForm
         loginSuccess={login}
         logoutSuccess={logout}
-        setTimezoneOffset={setTimezoneOffset}
       />
       <Grid
         container
@@ -62,7 +83,6 @@ function App() {
           </Typography>
           <Timetable
             timetable={timetable}
-            offset={timezoneOffset}
           />
         </Grid>
         <Grid item
@@ -76,7 +96,6 @@ function App() {
           </Typography>
           <Homework
             homework={homework}
-            offset={timezoneOffset}
           />
         </Grid>
       </Grid>

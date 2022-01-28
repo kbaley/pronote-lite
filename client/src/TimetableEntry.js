@@ -52,7 +52,7 @@ const teacherSx = {
 }
 
 
-const TimetableEntry = ({entry, offset}) => {
+const TimetableEntry = ({entry}) => {
 
   return (
     <Card
@@ -63,7 +63,7 @@ const TimetableEntry = ({entry, offset}) => {
       <Box sx={{display: 'flex', flexDirection: 'column'}}>
         <CardContent sx={{ flex: '1 0 auto', borderRight: `1px solid ${entry.color}`,  }}>
           <Typography color="text.primary" sx={dateSx} variant="body2" component="div">
-            {moment(entry.from).add(offset, 'minutes').format('HH:mm')}
+            {moment(entry.from).format('HH:mm')}
           </Typography>
         </CardContent>
       </Box>

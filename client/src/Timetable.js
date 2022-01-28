@@ -4,17 +4,18 @@ import moment from 'moment';
 import Header from './Header';
 import TimetableEntry from './TimetableEntry';
 import { groupBy, forEachRight, clone, filter } from 'lodash';
+
 const boxSx = {
   display: 'inline-block',
   mx: '5px',
 }
-const Timetable  = ({timetable, offset}) => {
+const Timetable  = ({timetable}) => {
   const [firstDay, setFirstDay] = React.useState([]);
   const [date, setDate] = React.useState("");
 
   React.useEffect(() => {
     const getDateWithoutTime = (date) => {
-      return moment(date).add(offset, 'minutes').format('MMM DD');
+      return moment(date).format('MMM DD');
     }
 
     const getBreaks = (dayEntries, endTime) => {
@@ -22,9 +23,9 @@ const Timetable  = ({timetable, offset}) => {
       for (let i = 0; i < dayEntries.length; i++) {
         const dayEntry = dayEntries[i];
         const diff = Math.abs(moment(endTime).diff(moment(dayEntry.from), 'minutes'));
-        if (diff > 10) {
+        if (diff > 15) {
           newEntries.push({
-            from: moment(startDate).add(offset, 'minutes'),
+            from: endTime,
             subject: 'BREAK',
             teacher: '',
             color: '#eee',
@@ -37,18 +38,15 @@ const Timetable  = ({timetable, offset}) => {
       return newEntries;
     }
 
-    const dateToUse = new Date();
-    if (dateToUse.getHours() >= 14) {
-      dateToUse.setDate(dateToUse.getDate() + 1);
-    }
+    const dateToUse = timetable.length > 0 ? timetable[0].from : new Date();
     let startDate = new Date(dateToUse);
-    startDate.setHours(7 - (offset / 60));
+    startDate.setHours(7);
     startDate.setMinutes(30);
     startDate.setSeconds(0);
     const dateFormatted = getDateWithoutTime(dateToUse);
     setDate(dateFormatted);
 
-    const filtered = filter(timetable, (entry) => getDateWithoutTime(entry.from) === dateFormatted);
+    const filtered = filter(timetable, (entry) => entry.status !== "Cours annulé");
     const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
     const keys = Object.keys(grouped);
     if (timetable.length > 0) {
@@ -61,7 +59,7 @@ const Timetable  = ({timetable, offset}) => {
     } else {
       setFirstDay([]);
     }
-  }, [timetable, offset]);
+  }, [timetable]);
 
   return (
     <Box
@@ -73,7 +71,6 @@ const Timetable  = ({timetable, offset}) => {
       {firstDay.map((entry) => (
         <TimetableEntry
           entry={entry}
-          offset={offset}
           key={entry.id}
         />
       ))}

@@ -3,7 +3,7 @@ import './App.css';
 import axios from 'axios';
 import { Button, TextField, Box } from '@mui/material';
 
-const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
+const LoginForm = ({loginSuccess, logoutSuccess}) => {
 
   const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
@@ -15,13 +15,12 @@ const LoginForm = ({loginSuccess, logoutSuccess, setTimezoneOffset}) => {
       axios.get('/api/checkSession')
         .then( (result) => {
           setIsLoggedIn(result.data.isLoggedIn);
-          setTimezoneOffset(new Date().getTimezoneOffset() - result.data.timezoneOffset);
           if (result.data.isLoggedIn) {
             loginSuccess();
           }
         });
     }
-  }, [loginSuccess, setTimezoneOffset, isLoggedIn]);
+  }, [loginSuccess, isLoggedIn]);
 
   const handleUserNameChange = (event) => {
     setUsername(event.target.value);
