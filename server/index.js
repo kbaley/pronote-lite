@@ -62,7 +62,6 @@ app.get("/api/timetable", authenticateToken, async (req, res) => {
         entry.fromNoTimezone = DateTime.fromJSDate(entry.from).toLocaleString(DateTime.DATETIME_MED);
         entry.toNoTimezone = DateTime.fromJSDate(entry.to).toLocaleString(DateTime.DATETIME_MED);
       }
-      console.log(timetable);
       req.session.timetable = JSON.stringify(timetable);
       res.json(timetable);
     } else {
@@ -87,6 +86,10 @@ app.get("/api/homework", authenticateToken, async (req, res) => {
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
     const homework = await session.homeworks(today, oneWeekFromNow);
+    for (let i = 0; i < homework.length; i++) {
+      const entry = homework[i];
+      entry.forNoTimezone = DateTime.fromJSDate(entry.for).toLocaleString(DateTime.DATETIME_MED);
+    }
     res.json(homework);
   } catch (error) {
     res.json(error);

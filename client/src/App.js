@@ -47,6 +47,10 @@ function App() {
 
     axios.get('/api/homework')
       .then( (result) => {
+        const data = result.data;
+        forEach(data, entry => {
+          entry.for = moment(entry.forNoTimezone).toDate();
+        });
         setHomework(result.data);
         setIsHomeworkLoading(false);
       });
