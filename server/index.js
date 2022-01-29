@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
 const { DateTime } = require('luxon');
+const { nextTick } = require('process');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -39,7 +40,7 @@ const getTodayWithoutTime = () => {
   return today;
 }
 
-app.get("/api/timetable", authenticateToken, async (req, res) => {
+app.get("/api/timetable", authenticateToken, async (req, res, next) => {
   try {
     const today = getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
@@ -68,7 +69,8 @@ app.get("/api/timetable", authenticateToken, async (req, res) => {
       res.json(JSON.parse(cachedTimetable));
     }
   } catch (error) {
-    res.json(error);
+    console.log(error);
+    next(error);
   }
 });
 
@@ -79,7 +81,7 @@ const getCachedTimetable = (req) => {
   return req.session.timetable;
 }
 
-app.get("/api/homework", authenticateToken, async (req, res) => {
+app.get("/api/homework", authenticateToken, async (req, res, next) => {
   try {
     const today = getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
@@ -92,7 +94,8 @@ app.get("/api/homework", authenticateToken, async (req, res) => {
     }
     res.json(homework);
   } catch (error) {
-    res.json(error);
+    console.log(error);
+    next(error);
   }
 });
 
@@ -106,17 +109,22 @@ const getSession = async (req) => {
   return await pronote.login(PRONOTE_URL, username, password);
 }
 
-app.get("/api/checkSession", (req, res) => {
-  if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
-    res.json({
-      isLoggedIn: false,
-      timezoneOffset: new Date().getTimezoneOffset()
-    });
-  } else {
-    res.json({
-      isLoggedIn: true,
-      timezoneOffset: new Date().getTimezoneOffset()
-    });
+app.get("/api/checkSession", (req, res, next) => {
+  try {
+    if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
+      res.json({
+        isLoggedIn: false,
+        timezoneOffset: new Date().getTimezoneOffset()
+      });
+    } else {
+      res.json({
+        isLoggedIn: true,
+        timezoneOffset: new Date().getTimezoneOffset()
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 });
 

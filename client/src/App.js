@@ -7,12 +7,14 @@ import LoginForm from './LoginForm';
 import { Grid, Typography } from '@mui/material';
 import { forEach, filter } from 'lodash';
 import moment from 'moment';
+import ErrorList from './ErrorList';
 
 function App() {
   const [timetable, setTimetable] = React.useState([]);
   const [homework, setHomework] = React.useState([]);
   const [isTimetableLoading, setIsTimetableLoading] = React.useState(false);
   const [isHomeworkLoading, setIsHomeworkLoading] = React.useState(false);
+  const [errors, dispatch] = React.useReducer(reducer, []);
 
   const getDefaultDate = () => {
 
@@ -30,6 +32,7 @@ function App() {
   const getStudentData = React.useCallback(() => {
     setIsTimetableLoading(true);
     setIsHomeworkLoading(true);
+    dispatch({type: "clear"});
 
     axios.get('/api/timetable')
       .then( (result) => {
@@ -43,6 +46,12 @@ function App() {
         moment.suppressDeprecationWarnings = false;
         setTimetable(data);
         setIsTimetableLoading(false);
+      })
+      .catch( (error) => {
+        console.log(error.response);
+        error.description = "Error loading timetable";
+        dispatch({type: "add", error});
+        setIsTimetableLoading(false);
       });
 
     axios.get('/api/homework')
@@ -52,6 +61,12 @@ function App() {
           entry.for = moment(entry.forNoTimezone).toDate();
         });
         setHomework(result.data);
+        setIsHomeworkLoading(false);
+      })
+      .catch( (error) => {
+        console.log(error.response);
+        error.description = "Error loading homework";
+        dispatch({type: "add", error});
         setIsHomeworkLoading(false);
       });
 
@@ -76,6 +91,11 @@ function App() {
         container
         spacing={2}
       >
+        <Grid item
+          xs={12}
+        >
+          <ErrorList errors={errors} />
+        </Grid>
         <Grid item
           md={2}
           xs={12}
@@ -105,6 +125,17 @@ function App() {
       </Grid>
     </div>
   );
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "clear":
+      return [];
+    case "add":
+      return [...state, action.error];
+    default:
+      throw new Error();
+  }
 }
 
 export default App;
