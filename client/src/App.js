@@ -5,7 +5,7 @@ import Homework from './Homework';
 import axios from 'axios';
 import LoginForm from './LoginForm';
 import { Grid, Typography } from '@mui/material';
-import { forEach, filter } from 'lodash';
+import { forEach } from 'lodash';
 import moment from 'moment';
 import ErrorList from './ErrorList';
 
@@ -16,19 +16,6 @@ function App() {
   const [isHomeworkLoading, setIsHomeworkLoading] = React.useState(false);
   const [errors, dispatch] = React.useReducer(reducer, []);
 
-  const getDefaultDate = () => {
-
-    let today = new Date();
-    if (today.getHours() >= 14) {
-      today.setDate(today.getDate() + 1);
-    }
-    today.setHours(0);
-    today.setMinutes(0);
-    today.setSeconds(0);
-    today.setMilliseconds(0);
-    return today;
-  }
-
   const getStudentData = React.useCallback(() => {
     setIsTimetableLoading(true);
     setIsHomeworkLoading(true);
@@ -36,8 +23,7 @@ function App() {
 
     axios.get('/api/timetable')
       .then( (result) => {
-        const defaultDate = getDefaultDate();
-        const data = filter(result.data, (entry) => new Date(entry.from) >= defaultDate);
+        const data = result.data;
         moment.suppressDeprecationWarnings = true;
         forEach(data, entry => {
           entry.from = moment(entry.fromNoTimezone).toDate();
@@ -57,9 +43,11 @@ function App() {
     axios.get('/api/homework')
       .then( (result) => {
         const data = result.data;
+        moment.suppressDeprecationWarnings = true;
         forEach(data, entry => {
           entry.for = moment(entry.forNoTimezone).toDate();
         });
+        moment.suppressDeprecationWarnings = false;
         setHomework(result.data);
         setIsHomeworkLoading(false);
       })

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import moment from 'moment';
 import Header from './Header';
 import TimetableEntry from './TimetableEntry';
 import { groupBy, forEachRight, clone, filter } from 'lodash';
+import TimetableHeader from './TimetableHeader';
 
 const boxSx = {
   display: 'inline-block',
@@ -12,6 +13,19 @@ const boxSx = {
 const Timetable  = ({timetable}) => {
   const [firstDay, setFirstDay] = React.useState([]);
   const [date, setDate] = React.useState("");
+
+  const getDefaultDate = () => {
+
+    let today = new Date();
+    if (today.getHours() >= 14) {
+      today.setDate(today.getDate() + 1);
+    }
+    today.setHours(0);
+    today.setMinutes(0);
+    today.setSeconds(0);
+    today.setMilliseconds(0);
+    return today;
+  }
 
   React.useEffect(() => {
     const getDateWithoutTime = (date) => {
@@ -67,7 +81,7 @@ const Timetable  = ({timetable}) => {
       sx={boxSx}
     >
       <Header text="Timetable" visible={timetable.length > 0} />
-      <Typography variant="h6" sx={{textAlign: 'center'}}>{firstDay.length > 0 ? date : ""}</Typography>
+      <TimetableHeader day={firstDay.length > 0 ? date : ""} />
       {firstDay.map((entry) => (
         <TimetableEntry
           entry={entry}

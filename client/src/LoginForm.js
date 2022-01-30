@@ -58,7 +58,7 @@ const LoginForm = ({loginSuccess, logoutSuccess}) => {
       autoComplete='off'
     >
       { !isLoggedIn &&
-      <React.Fragment>
+      <>
       <div>
         <TextField
           label="Username"
@@ -86,7 +86,7 @@ const LoginForm = ({loginSuccess, logoutSuccess}) => {
         </Button>
       </div>
       <div>{isLoggingIn ? "Logging in..." : ""}</div>
-      </React.Fragment>
+      </>
       }
       { isLoggedIn &&
       <div>
