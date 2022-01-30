@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
 const { DateTime } = require('luxon');
-const { nextTick } = require('process');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
