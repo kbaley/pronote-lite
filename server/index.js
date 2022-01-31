@@ -113,12 +113,10 @@ app.get("/api/checkSession", (req, res, next) => {
     if (!req.session || !req.session.username || !req.session.password || !req.session.iv) {
       res.json({
         isLoggedIn: false,
-        timezoneOffset: new Date().getTimezoneOffset()
       });
     } else {
       res.json({
         isLoggedIn: true,
-        timezoneOffset: new Date().getTimezoneOffset()
       });
     }
   } catch (error) {
