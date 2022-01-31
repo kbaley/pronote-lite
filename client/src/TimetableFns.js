@@ -1,16 +1,6 @@
 import { filter, sortBy } from 'lodash';
 import moment from 'moment';
 
-export const clearTime = (date) => {
-  const clone = new Date(date);
-  clone.setHours(0);
-  clone.setMinutes(0);
-  clone.setSeconds(0);
-  clone.setMilliseconds(0);
-
-  return clone;
-}
-
 const addDays = (date, days) => {
   const newDate = new Date(date);
   newDate.setDate(date.getDate() + days);
@@ -31,7 +21,7 @@ export const getFirstDate = (timetable) => {
   if (today.getHours() >= 14) {
     today.setDate(today.getDate() + 1);
   }
-  today = clearTime(today);
+  today = setTime(today, 0, 0);
   if (timetable.length === 0) {
     return today;
   }
@@ -40,7 +30,7 @@ export const getFirstDate = (timetable) => {
     return today;
   }
   today = sortBy(futureEntries, ['from'] )[0].from;
-  return clearTime(today);
+  return setTime(today, 0, 0);
 }
 export const getBreaks = (dayEntries, endTime) => {
   const newEntries = [];
@@ -60,4 +50,17 @@ export const getBreaks = (dayEntries, endTime) => {
     endTime = dayEntry.to;
   }
   return newEntries;
+}
+
+export const getDateWithoutTime = (date) => {
+  return moment(date).format('MMM DD');
+}
+
+const setTime = (date, hour, minutes) => {
+  const newDate = new Date(date);
+  newDate.setHours(hour);
+  newDate.setMinutes(minutes);
+  newDate.setSeconds(0);
+  newDate.setMilliseconds(0);
+  return newDate;
 }

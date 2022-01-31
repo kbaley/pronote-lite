@@ -43,7 +43,7 @@ app.get("/api/timetable", authenticateToken, async (req, res, next) => {
   try {
     const today = getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
-    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
     const cachedTimetable = getCachedTimetable(req);
     if (cachedTimetable === null || cachedTimetable === '') {
       const session = await getSession(req);
@@ -84,7 +84,7 @@ app.get("/api/homework", authenticateToken, async (req, res, next) => {
   try {
     const today = getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
-    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
     const session = await getSession(req);
     const homework = await session.homeworks(today, oneWeekFromNow);
     for (let i = 0; i < homework.length; i++) {

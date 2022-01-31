@@ -15,6 +15,7 @@ function App() {
   const [isTimetableLoading, setIsTimetableLoading] = React.useState(false);
   const [isHomeworkLoading, setIsHomeworkLoading] = React.useState(false);
   const [errors, dispatch] = React.useReducer(reducer, []);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   const getStudentData = React.useCallback(() => {
     setIsTimetableLoading(true);
@@ -62,11 +63,13 @@ function App() {
 
   const login = () => {
     getStudentData();
+    setIsLoggedIn(true);
   }
 
   const logout = () => {
     setHomework([]);
     setTimetable([]);
+    setIsLoggedIn(false);
   }
 
   return (
@@ -95,6 +98,7 @@ function App() {
           </Typography>
           <Timetable
             timetable={timetable}
+            show={!isTimetableLoading && isLoggedIn}
           />
         </Grid>
         <Grid item
