@@ -88,7 +88,8 @@ function App() {
           <ErrorList errors={errors} />
         </Grid>
         <Grid item
-          md={2}
+          lg={3}
+          md={4}
           xs={12}
         >
           <Typography
@@ -102,7 +103,8 @@ function App() {
           />
         </Grid>
         <Grid item
-          md={10}
+          lg={9}
+          md={8}
           xs={12}
         >
           <Typography
