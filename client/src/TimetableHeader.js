@@ -1,8 +1,8 @@
-import { Typography, Grid } from '@mui/material';
+import { Typography, Grid, Button } from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
-const TimetableHeader = ({day}) => {
+const TimetableHeader = ({day, previousDay, nextDay}) => {
   return (
     <Grid container
       spacing={2}
@@ -13,7 +13,11 @@ const TimetableHeader = ({day}) => {
         alignItems="center"
         justifyContent="flex-start"
       >
-        <KeyboardArrowLeftIcon />
+        <Button
+          onClick={previousDay}
+        >
+          <KeyboardArrowLeftIcon />
+        </Button>
       </Grid>
       <Grid item
         xs={6}
@@ -27,7 +31,11 @@ const TimetableHeader = ({day}) => {
         xs={3}
         justifyContent="flex-end"
       >
-        <KeyboardArrowRightIcon />
+        <Button
+          onClick={nextDay}
+        >
+          <KeyboardArrowRightIcon />
+        </Button>
       </Grid>
     </Grid>
   );

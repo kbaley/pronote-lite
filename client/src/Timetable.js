@@ -5,6 +5,7 @@ import Header from './Header';
 import TimetableEntry from './TimetableEntry';
 import { groupBy, forEachRight, clone, filter } from 'lodash';
 import TimetableHeader from './TimetableHeader';
+import { getFirstDate, tomorrow, yesterday, getBreaks } from './TimetableFns';
 
 const boxSx = {
   display: 'inline-block',
@@ -13,18 +14,15 @@ const boxSx = {
 const Timetable  = ({timetable}) => {
   const [firstDay, setFirstDay] = React.useState([]);
   const [date, setDate] = React.useState("");
+  const [currentDate, setCurrentDate] = React.useState(getFirstDate(timetable));
+  const [groupedTimetable, setGroupedTimetable] = React.useState([]);
 
-  const getDefaultDate = () => {
+  const goToPreviousDay = () => {
+    setCurrentDate(yesterday(currentDate));
+  }
 
-    let today = new Date();
-    if (today.getHours() >= 14) {
-      today.setDate(today.getDate() + 1);
-    }
-    today.setHours(0);
-    today.setMinutes(0);
-    today.setSeconds(0);
-    today.setMilliseconds(0);
-    return today;
+  const goToNextDay = () => {
+    setCurrentDate(tomorrow(currentDate));
   }
 
   React.useEffect(() => {
@@ -32,27 +30,7 @@ const Timetable  = ({timetable}) => {
       return moment(date).format('MMM DD');
     }
 
-    const getBreaks = (dayEntries, endTime) => {
-      const newEntries = [];
-      for (let i = 0; i < dayEntries.length; i++) {
-        const dayEntry = dayEntries[i];
-        const diff = Math.abs(moment(endTime).diff(moment(dayEntry.from), 'minutes'));
-        if (diff > 15) {
-          newEntries.push({
-            from: endTime,
-            subject: 'BREAK',
-            teacher: '',
-            color: '#eee',
-            position: i,
-            id: Math.random(),
-          });
-        }
-        endTime = dayEntry.to;
-      }
-      return newEntries;
-    }
-
-    const dateToUse = timetable.length > 0 ? timetable[0].from : new Date();
+    const dateToUse = timetable.length > 0 ? currentDate : new Date();
     let startDate = new Date(dateToUse);
     startDate.setHours(7);
     startDate.setMinutes(30);
@@ -62,9 +40,11 @@ const Timetable  = ({timetable}) => {
 
     const filtered = filter(timetable, (entry) => entry.status !== "Cours annulé");
     const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
+    setGroupedTimetable(grouped);
     const keys = Object.keys(grouped);
-    if (timetable.length > 0) {
-      const dayEntries = clone(grouped[keys[0]]);
+    const selectedKey = keys.find(k => k === dateFormatted);
+    if (timetable.length > 0 && selectedKey) {
+      const dayEntries = clone(grouped[selectedKey]);
       const newEntries = getBreaks(dayEntries, startDate);
       forEachRight(newEntries, newEntry => {
         dayEntries.splice(newEntry.position, 0, newEntry);
@@ -73,7 +53,7 @@ const Timetable  = ({timetable}) => {
     } else {
       setFirstDay([]);
     }
-  }, [timetable]);
+  }, [timetable, currentDate]);
 
   return (
     <Box
@@ -81,7 +61,11 @@ const Timetable  = ({timetable}) => {
       sx={boxSx}
     >
       <Header text="Timetable" visible={timetable.length > 0} />
-      <TimetableHeader day={firstDay.length > 0 ? date : ""} />
+      <TimetableHeader 
+        day={firstDay.length > 0 ? date : ""} 
+        previousDay={goToPreviousDay}
+        nextDay={goToNextDay}
+      />
       {firstDay.map((entry) => (
         <TimetableEntry
           entry={entry}
