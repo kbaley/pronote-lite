@@ -1,14 +1,15 @@
 import React from 'react';
 import './App.css';
 import axios from 'axios';
-import { Button, TextField, Box } from '@mui/material';
+import { Button, TextField, Box, Typography } from '@mui/material';
 
-const LoginForm = ({loginSuccess, logoutSuccess}) => {
+const LoginForm = ({loginSuccess, logoutSuccess, isParentLoggedIn}) => {
 
   const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const [studentName, setStudentName] = React.useState("");
 
   React.useEffect(() => {
     if (!isLoggedIn) {
@@ -22,6 +23,10 @@ const LoginForm = ({loginSuccess, logoutSuccess}) => {
     }
   }, [loginSuccess, isLoggedIn]);
 
+  React.useEffect(() => {
+    setIsLoggedIn(isParentLoggedIn);
+  }, [isParentLoggedIn]);
+
   const handleUserNameChange = (event) => {
     setUsername(event.target.value);
   }
@@ -30,7 +35,8 @@ const LoginForm = ({loginSuccess, logoutSuccess}) => {
     setPassword(event.target.value);
   };
 
-  const handleLoginResponse = (data) => {
+  const handleLoginResponse = (response) => {
+    setStudentName(response.data.user.name);
     setIsLoggedIn(true);
     loginSuccess();
   }
@@ -43,7 +49,6 @@ const LoginForm = ({loginSuccess, logoutSuccess}) => {
   }
 
   const logout = async () => {
-    await axios.post('/api/logout');
     setIsLoggedIn(false);
     logoutSuccess();
   }
@@ -90,9 +95,12 @@ const LoginForm = ({loginSuccess, logoutSuccess}) => {
       }
       { isLoggedIn &&
       <div>
+        <Typography variant="h5" sx={{display: "inline"}}>{studentName}</Typography>
         <Button
           variant="contained"
-          onClick={logout}>
+          onClick={logout}
+          sx={{display: "inline-block", float: "right"}}
+        >
           Log out
         </Button>
       </div>

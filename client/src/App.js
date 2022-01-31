@@ -21,9 +21,12 @@ function App() {
     setIsTimetableLoading(true);
     setIsHomeworkLoading(true);
     dispatch({type: "clear"});
+    const cancelToken = axios.CancelToken;
+    const source = cancelToken.source();
 
-    axios.get('/api/timetable')
-      .then( (result) => {
+    axios.get('/api/timetable', {
+      cancelToken: source.token
+    }).then( (result) => {
         const data = result.data;
         moment.suppressDeprecationWarnings = true;
         forEach(data, entry => {
@@ -35,14 +38,22 @@ function App() {
         setIsTimetableLoading(false);
       })
       .catch( (error) => {
-        console.log(error.response);
-        error.description = "Error loading timetable";
-        dispatch({type: "add", error});
-        setIsTimetableLoading(false);
+        if (axios.isCancel(error)) return;
+        if (error.response.status === 401) {
+          setIsHomeworkLoading(false);
+          setIsTimetableLoading(false);
+          source.cancel("Session has been canceled");
+          logout();
+        } else {
+          error.description = "Error loading timetable";
+          dispatch({type: "add", error});
+          setIsTimetableLoading(false);
+        }
       });
 
-    axios.get('/api/homework')
-      .then( (result) => {
+    axios.get('/api/homework', {
+      cancelToken: source.token
+    }).then( (result) => {
         const data = result.data;
         moment.suppressDeprecationWarnings = true;
         forEach(data, entry => {
@@ -53,10 +64,17 @@ function App() {
         setIsHomeworkLoading(false);
       })
       .catch( (error) => {
-        console.log(error.response);
-        error.description = "Error loading homework";
-        dispatch({type: "add", error});
-        setIsHomeworkLoading(false);
+        if (axios.isCancel(error)) return;
+        if (error.response.status === 401) {
+          setIsHomeworkLoading(false);
+          setIsTimetableLoading(false);
+          source.cancel("Session has been canceled");
+          logout();
+        } else {
+          error.description = "Error loading homework";
+          dispatch({type: "add", error});
+          setIsHomeworkLoading(false);
+        }
       });
 
   }, []);
@@ -66,7 +84,8 @@ function App() {
     setIsLoggedIn(true);
   }
 
-  const logout = () => {
+  const logout = async () => {
+    await axios.post('/api/logout');
     setHomework([]);
     setTimetable([]);
     setIsLoggedIn(false);
@@ -77,6 +96,7 @@ function App() {
       <LoginForm
         loginSuccess={login}
         logoutSuccess={logout}
+        isParentLoggedIn={isLoggedIn}
       />
       <Grid
         container
