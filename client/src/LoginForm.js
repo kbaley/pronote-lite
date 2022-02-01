@@ -18,6 +18,7 @@ const LoginForm = ({loginSuccess, logoutSuccess, isParentLoggedIn}) => {
           setIsLoggedIn(result.data.isLoggedIn);
           if (result.data.isLoggedIn) {
             loginSuccess();
+            setStudentName(result.data.user.name);
           }
         });
     }
@@ -95,7 +96,17 @@ const LoginForm = ({loginSuccess, logoutSuccess, isParentLoggedIn}) => {
       }
       { isLoggedIn &&
       <div>
-        <Typography variant="h5" sx={{display: "inline"}}>{studentName}</Typography>
+        <Typography variant="h5" 
+          sx={{
+            display: "inline",
+            fontSize: {
+              md: 24,
+              xs: 18
+            }
+          }}
+        >
+          {studentName}
+        </Typography>
         <Button
           variant="contained"
           onClick={logout}

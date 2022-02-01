@@ -117,6 +117,10 @@ app.get("/api/checkSession", (req, res, next) => {
     } else {
       res.json({
         isLoggedIn: true,
+        user: {
+          id: req.session.studentId,
+          name: req.session.studentName,
+        }
       });
     }
   } catch (error) {
@@ -134,6 +138,8 @@ app.post("/api/login", jsonParser, async (req, res) => {
   expressSession.username = username;
   expressSession.password = encrypted.encryptedData.toString('hex');
   expressSession.iv = encrypted.initVector.toString('hex');
+  expressSession.studentName = session.user.name;
+  expressSession.studentId = session.user.id;
   const authToken = jsonwebtoken.sign({
     username: username,
     key: encrypted.encryptedData.toString('hex'),
