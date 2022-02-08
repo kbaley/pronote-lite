@@ -9,6 +9,8 @@ const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
 const { DateTime } = require('luxon');
+const datefns = require('./datefns.js');
+const _ = require('lodash');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -29,19 +31,34 @@ app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 const jsonParser = bodyParser.json();
 
-const getTodayWithoutTime = () => {
-  const today = new Date();
-  today.setHours(0);
-  today.setMinutes(0);
-  today.setSeconds(0);
-  today.setMilliseconds(0);
+app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
 
-  return today;
-}
+  try {
+
+    const sunday = datefns.getSundayWithoutTime();
+    console.log(sunday);
+    const oneWeekFromNow = new Date(sunday);
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    const session = await getSession(req);
+    let timetable = await session.timetable(sunday, oneWeekFromNow);
+    timetable = _.filter(timetable, (entry) => entry.status !== 'Cours annulé');
+    for (let i = 0; i < timetable.length; i++) {
+      const entry = timetable[i];
+      entry.fromNoTimezone = DateTime.fromJSDate(entry.from).toLocaleString(DateTime.DATETIME_MED);
+      entry.toNoTimezone = DateTime.fromJSDate(entry.to).toLocaleString(DateTime.DATETIME_MED);
+      entry.dateText = DateTime.fromJSDate(entry.from).toFormat("yyyy-LL-dd");
+    }
+    const grouped = _.groupBy(timetable, (entry) => entry.dateText);
+    res.json(grouped);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
 
 app.get("/api/timetable", authenticateToken, async (req, res, next) => {
   try {
-    const today = getTodayWithoutTime();
+    const today = datefns.getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
     const cachedTimetable = getCachedTimetable(req);
@@ -82,7 +99,7 @@ const getCachedTimetable = (req) => {
 
 app.get("/api/homework", authenticateToken, async (req, res, next) => {
   try {
-    const today = getTodayWithoutTime();
+    const today = datefns.getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
     const session = await getSession(req);

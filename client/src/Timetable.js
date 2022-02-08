@@ -11,6 +11,7 @@ import {
   getBreaks,
   getDateWithoutTime
 } from './TimetableFns';
+import { useNavigate } from 'react-router-dom';
 
 const boxSx = {
   display: 'inline-block',
@@ -22,6 +23,7 @@ const Timetable  = ({timetable, show}) => {
   const [date, setDate] = React.useState("");
   const [currentDate, setCurrentDate] = React.useState(getFirstDate(timetable));
   const [groupedTimetable, setGroupedTimetable] = React.useState([]);
+  const navigate = useNavigate();
 
   const goToPreviousDay = () => {
     setCurrentDate(yesterday(currentDate));
@@ -59,13 +61,21 @@ const Timetable  = ({timetable, show}) => {
     }
   }, [groupedTimetable, currentDate]);
 
+  const print = () => {
+    navigate("/print");
+  }
+
   return (
     <Box
       component="span"
       sx={boxSx}
       style={{ "display": show ? "block" : "none" }}
     >
-      <Header text="Timetable" visible={timetable.length > 0} />
+      <Header
+        text="Timetable"
+        visible={timetable.length > 0}
+        printFunction={print}
+      />
       <TimetableHeader
         day={date}
         previousDay={goToPreviousDay}

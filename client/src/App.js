@@ -6,6 +6,7 @@ import {
   Routes
 } from "react-router-dom";
 import Dashboard from './Dashboard';
+import PrintableTimetable from './PrintableTimetable';
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/print" element={<PrintableTimetable />} />
       </Routes>
     </Router>
   );

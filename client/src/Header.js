@@ -1,4 +1,5 @@
 import { Typography } from '@mui/material';
+import PrintIcon from '@mui/icons-material/Print';
 
 const titleSx = {
   mt: 1,
@@ -11,15 +12,20 @@ const titleSx = {
   backgroundColor: '#ddd',
 }
 
-const Header = ({text, visible}) => {
+const Header = ({text, visible, printFunction}) => {
   return (
-    <Typography
-      sx={titleSx}
-      component="h1"
-      style={{ display: visible ? "block" : "none"}}
-    >
-      {text}
-    </Typography>
+    <>
+      <Typography
+        sx={titleSx}
+        component="h1"
+        style={{ display: visible ? "block" : "none"}}
+      >
+        {text}
+        {printFunction &&
+          <PrintIcon sx={{ml: 2}} onClick={printFunction} />
+        }
+      </Typography>
+    </>
   );
 }
 

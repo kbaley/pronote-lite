@@ -1,11 +1,12 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import Header from './Header';
 import TimetableEntry from './TimetableEntry';
-import { groupBy, forEachRight, clone, filter } from 'lodash';
+import { forEachRight, clone } from 'lodash';
 import axios from 'axios';
+import moment from 'moment';
+import { forEach } from 'lodash';
+import { useNavigate } from "react-router-dom";
 import {
-  getFirstDate,
   getBreaks,
   getDateWithoutTime
 } from './TimetableFns';
@@ -17,84 +18,72 @@ const boxSx = {
 }
 const PrintableTimetable  = () => {
   const [dayEntries, setDayEntries] = React.useState([]);
-  const [date, setDate] = React.useState("");
-  const [currentDate, setCurrentDate] = React.useState(getFirstDate(timetable));
-  const [groupedTimetable, setGroupedTimetable] = React.useState([]);
-  const [timetable, setTimetable] = React.useState([]);
+  const [timetable, setTimetable] = React.useState({});
+  const navigate = useNavigate();
 
   const getStudentData = React.useCallback(() => {
-    setIsTimetableLoading(true);
-    dispatch({type: "clear"});
-    const cancelToken = axios.CancelToken;
-    const source = cancelToken.source();
 
-    axios.get('/api/timetable', {
-      cancelToken: source.token
-    }).then( (result) => {
-        const data = result.data;
-        moment.suppressDeprecationWarnings = true;
-        forEach(data, entry => {
-          entry.from = moment(entry.fromNoTimezone).toDate();
-          entry.to = moment(entry.toNoTimezone).toDate();;
-        });
-        moment.suppressDeprecationWarnings = false;
-        setTimetable(data);
-        setIsTimetableLoading(false);
-      })
-      .catch( (error) => {
-        if (axios.isCancel(error)) return;
-        if (error.response.status === 401) {
-          setIsTimetableLoading(false);
-          source.cancel("Session has been canceled");
-          logout();
-        } else {
-          error.description = "Error loading timetable";
-          dispatch({type: "add", error});
-          setIsTimetableLoading(false);
-        }
+    axios.get('/api/weeklytimetable')
+    .then( (result) => {
+      const data = result.data;
+      moment.suppressDeprecationWarnings = true;
+      forEach(data, entry => {
+        entry.from = moment(entry.fromNoTimezone).toDate();
+        entry.to = moment(entry.toNoTimezone).toDate();;
       });
-
+      console.log(data);
+      moment.suppressDeprecationWarnings = false;
+      addBreaks(data);
+      setTimetable(data);
+    })
+    .catch( (error) => {
+      console.log(error);
+    });
   }, []);
 
   React.useEffect(() => {
-    const filtered = filter(timetable, (entry) => entry.status !== "Cours annulé");
-    const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
-    setGroupedTimetable(grouped);
-  }, [timetable]);
+    if (Object.keys(timetable).length > 0 ) return;
+    axios.get('/api/checkSession')
+      .then( (result) => {
+        if (!result.data.isLoggedIn) {
+          navigate("/");
+        } else {
+          getStudentData();
+        }
+      });
 
-  React.useEffect(() => {
-    let startDate = new Date(currentDate);
+  }, [getStudentData, navigate, timetable]);
+
+  const addBreaks = (filtered) => {
+    const keys = Object.keys(filtered);
+    for (let index = 0; index < keys.length; index++) {
+      const day = filtered[keys[index]];
+      filtered[keys[index]] = addBreaksToDay(day, keys[index]);
+    }
+  };
+
+  const addBreaksToDay = (entries, date) => {
+    let startDate = new Date(date);
+    console.log(startDate);
     startDate.setHours(7);
     startDate.setMinutes(30);
     startDate.setSeconds(0);
-    const dateFormatted = getDateWithoutTime(currentDate);
-    setDate(dateFormatted);
 
-    const keys = Object.keys(groupedTimetable);
-    const selectedKey = keys.find(k => k === dateFormatted);
-    if (keys.length > 0 && selectedKey) {
-      const entries = clone(groupedTimetable[selectedKey]);
-      const newEntries = getBreaks(entries, startDate);
-      forEachRight(newEntries, newEntry => {
-        entries.splice(newEntry.position, 0, newEntry);
-      });
-      setDayEntries(entries);
-    } else {
-      setDayEntries([]);
-    }
-  }, [groupedTimetable, currentDate]);
+    const clonedEntries = clone(entries);
+    const newEntries = getBreaks(entries, startDate);
+    forEachRight(newEntries, newEntry => {
+      clonedEntries.splice(newEntry.position, 0, newEntry);
+    });
+    return clonedEntries;
+  }
 
   return (
     <Box
       component="span"
       sx={boxSx}
     >
-      <Header text="Timetable" visible={timetable.length > 0} />
-      {dayEntries.map((entry) => (
-        <TimetableEntry
-          entry={entry}
-          key={entry.id}
-        />
+      {timetable.map((entry) => (
+        <div>{entry}</div>
       ))}
     </Box>
   )
