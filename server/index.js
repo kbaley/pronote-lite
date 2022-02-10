@@ -9,7 +9,8 @@ const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
 const { DateTime } = require('luxon');
-const datefns = require('./datefns.js');
+const datefns = require('./datefns');
+const timetablefns = require('./timetablefns');
 const _ = require('lodash');
 
 const PORT = process.env.PORT || 3001;
@@ -48,10 +49,8 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
       entry.dateText = DateTime.fromJSDate(entry.from).toFormat("yyyy-LL-dd");
     }
     const grouped = _.groupBy(timetable, (entry) => entry.dateText);
-    _.forEach(grouped, (entry) => {
-      entry = addBreaks(entry);
-    });
-    res.json(grouped);
+    const withBreaks = timetablefns.addBreaks(grouped, 7, 30);
+    res.json(withBreaks);
   } catch (error) {
     console.log(error);
     next(error);

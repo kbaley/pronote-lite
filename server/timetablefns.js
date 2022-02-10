@@ -3,7 +3,6 @@ const _ = require('lodash');
 const { DateTime } = require('luxon');
 
 exports.addBreaks = (groupedEntries, startHour, startMinute) => {
-  if (groupedEntries.length === 0) return groupedEntries;
 
   const newList = {};
   _.forEach(groupedEntries, (entries, key) => {
@@ -26,7 +25,9 @@ const getBreaks = (dayEntries, endTime) => {
   const newEntries = [];
   for (let i = 0; i < dayEntries.length; i++) {
     const dayEntry = dayEntries[i];
-    const diff = Math.abs(DateTime.fromISO(endTime).diff(DateTime.fromISO(dayEntry.from), 'minutes').minutes);
+    const endTimeDate = new Date(endTime);
+    const fromDate = new Date(dayEntry.from);
+    const diff = Math.abs(DateTime.fromJSDate(endTimeDate).diff(DateTime.fromJSDate(fromDate), 'minutes').minutes);
     if (diff > 15) {
       newEntries.push({
         from: endTime,
@@ -35,7 +36,7 @@ const getBreaks = (dayEntries, endTime) => {
         color: '#eee',
         position: i,
         id: Math.random(),
-       fromNoTimezone: DateTime.fromISO(endTime).toLocaleString(DateTime.DATETIME_MED)
+       fromNoTimezone: DateTime.fromJSDate(endTimeDate).toLocaleString(DateTime.DATETIME_MED)
       });
     }
     endTime = dayEntry.to;
