@@ -5,7 +5,7 @@ import { forEachRight, clone } from 'lodash';
 import axios from 'axios';
 import moment from 'moment';
 import { forEach } from 'lodash';
-import { useNavigate } from "react-router-dom";
+import LoginForm from './LoginForm';
 import {
   getBreaks,
   getDateWithoutTime
@@ -19,7 +19,7 @@ const boxSx = {
 const PrintableTimetable  = () => {
   const [dayEntries, setDayEntries] = React.useState([]);
   const [timetable, setTimetable] = React.useState({});
-  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   const getStudentData = React.useCallback(() => {
 
@@ -41,19 +41,6 @@ const PrintableTimetable  = () => {
     });
   }, []);
 
-  React.useEffect(() => {
-    if (Object.keys(timetable).length > 0 ) return;
-    axios.get('/api/checkSession')
-      .then( (result) => {
-        if (!result.data.isLoggedIn) {
-          navigate("/");
-        } else {
-          getStudentData();
-        }
-      });
-
-  }, [getStudentData, navigate, timetable]);
-
   const addBreaks = (filtered) => {
     const keys = Object.keys(filtered);
     for (let index = 0; index < keys.length; index++) {
@@ -64,7 +51,7 @@ const PrintableTimetable  = () => {
 
   const addBreaksToDay = (entries, date) => {
     let startDate = new Date(date);
-    console.log(startDate);
+    console.log(entries);
     startDate.setHours(7);
     startDate.setMinutes(30);
     startDate.setSeconds(0);
@@ -77,15 +64,25 @@ const PrintableTimetable  = () => {
     return clonedEntries;
   }
 
+  const login = async () => {
+    getStudentData();
+    setIsLoggedIn(true);
+  }
+
+  const logout = async () => {
+  }
+
   return (
-    <Box
-      component="span"
-      sx={boxSx}
-    >
-      {timetable.map((entry) => (
-        <div>{entry}</div>
-      ))}
-    </Box>
+    <>
+      <div className="App">
+        <LoginForm
+          loginSuccess={login}
+          logoutSuccess={logout}
+          isParentLoggedIn={isLoggedIn}
+          show={!isLoggedIn}
+        />
+      </div>
+    </>
   )
 }
 

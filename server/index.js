@@ -36,7 +36,6 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
   try {
 
     const sunday = datefns.getSundayWithoutTime();
-    console.log(sunday);
     const oneWeekFromNow = new Date(sunday);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
@@ -49,6 +48,9 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
       entry.dateText = DateTime.fromJSDate(entry.from).toFormat("yyyy-LL-dd");
     }
     const grouped = _.groupBy(timetable, (entry) => entry.dateText);
+    _.forEach(grouped, (entry) => {
+      entry = addBreaks(entry);
+    });
     res.json(grouped);
   } catch (error) {
     console.log(error);

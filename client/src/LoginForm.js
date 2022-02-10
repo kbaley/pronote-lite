@@ -3,7 +3,7 @@ import './App.css';
 import axios from 'axios';
 import { Button, TextField, Box, Typography } from '@mui/material';
 
-const LoginForm = ({loginSuccess, logoutSuccess, isParentLoggedIn}) => {
+const LoginForm = ({loginSuccess, logoutSuccess, isParentLoggedIn, show = true}) => {
 
   const [username, setUsername] = React.useState(process.env.REACT_APP_USERNAME ?? "");
   const [password, setPassword] = React.useState(process.env.REACT_APP_PASSWORD ?? "");
@@ -62,6 +62,7 @@ const LoginForm = ({loginSuccess, logoutSuccess, isParentLoggedIn}) => {
       }}
       noValidate
       autoComplete='off'
+      style={{display: show ? 'block' : 'none'}}
     >
       { !isLoggedIn &&
       <>
