@@ -2,14 +2,15 @@ import React from 'react';
 import { Box } from '@mui/material';
 import Header from './Header';
 import TimetableEntry from './TimetableEntry';
-import { groupBy, forEachRight, clone, filter } from 'lodash';
+import { groupBy, forEachRight, clone, filter, minBy } from 'lodash';
 import TimetableHeader from './TimetableHeader';
 import {
   getFirstDate,
   tomorrow,
   yesterday,
   getBreaks,
-  getDateWithoutTime
+  getDateWithoutTime,
+  setTime,
 } from './TimetableFns';
 
 const boxSx = {
@@ -20,7 +21,9 @@ const boxSx = {
 const Timetable  = ({timetable, show}) => {
   const [dayEntries, setDayEntries] = React.useState([]);
   const [date, setDate] = React.useState("");
-  const [currentDate, setCurrentDate] = React.useState(getFirstDate(timetable));
+  const firstDate = getFirstDate(timetable);
+  const [currentDate, setCurrentDate] = React.useState(firstDate);
+  const [minDate, setMinDate] = React.useState(null);
   const [groupedTimetable, setGroupedTimetable] = React.useState([]);
 
   const goToPreviousDay = () => {
@@ -32,8 +35,15 @@ const Timetable  = ({timetable, show}) => {
   }
 
   React.useEffect(() => {
+    setCurrentDate(getFirstDate(timetable));
     const filtered = filter(timetable, (entry) => entry.status !== "Cours annulé");
     const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
+    const min = minBy(filtered, (entry) => entry.from);
+    if (min && min.from) {
+      const minDate = setTime(new Date(min.from), 0, 0);
+      console.log()
+      setMinDate(minDate);
+    }
     setGroupedTimetable(grouped);
   }, [timetable]);
 
@@ -68,6 +78,8 @@ const Timetable  = ({timetable, show}) => {
       <Header text="Timetable" visible={timetable.length > 0} />
       <TimetableHeader
         day={date}
+        currentDate={currentDate}
+        minDate={minDate}
         previousDay={goToPreviousDay}
         nextDay={goToNextDay}
       />

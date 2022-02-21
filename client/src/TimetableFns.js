@@ -56,7 +56,7 @@ export const getDateWithoutTime = (date) => {
   return moment(date).format('MMM DD');
 }
 
-const setTime = (date, hour, minutes) => {
+export const setTime = (date, hour, minutes) => {
   const newDate = new Date(date);
   newDate.setHours(hour);
   newDate.setMinutes(minutes);

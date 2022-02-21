@@ -1,8 +1,14 @@
+import React from 'react';
 import { Typography, Grid, Button } from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
-const TimetableHeader = ({day, previousDay, nextDay}) => {
+const TimetableHeader = ({day, currentDate, previousDay, nextDay, minDate}) => {
+  const [showPrevious, setShowPrevious] = React.useState(true);
+
+  React.useEffect(() => {
+    setShowPrevious(currentDate > minDate);
+  }, [currentDate, minDate]);
   return (
     <Grid container
       spacing={2}
@@ -13,11 +19,13 @@ const TimetableHeader = ({day, previousDay, nextDay}) => {
         alignItems="center"
         justifyContent="flex-start"
       >
-        <Button
-          onClick={previousDay}
-        >
-          <KeyboardArrowLeftIcon />
-        </Button>
+        {showPrevious &&
+          <Button
+            onClick={previousDay}
+          >
+            <KeyboardArrowLeftIcon />
+          </Button>
+        }
       </Grid>
       <Grid item
         xs={6}
