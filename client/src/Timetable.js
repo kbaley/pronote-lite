@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import Header from './Header';
 import TimetableEntry from './TimetableEntry';
-import { groupBy, forEachRight, clone, filter, minBy } from 'lodash';
+import { groupBy, forEachRight, clone, filter, minBy, maxBy } from 'lodash';
 import TimetableHeader from './TimetableHeader';
 import {
   getFirstDate,
@@ -24,6 +24,7 @@ const Timetable  = ({timetable, show}) => {
   const firstDate = getFirstDate(timetable);
   const [currentDate, setCurrentDate] = React.useState(firstDate);
   const [minDate, setMinDate] = React.useState(null);
+  const [maxDate, setMaxDate] = React.useState(null);
   const [groupedTimetable, setGroupedTimetable] = React.useState([]);
 
   const goToPreviousDay = () => {
@@ -41,8 +42,12 @@ const Timetable  = ({timetable, show}) => {
     const min = minBy(filtered, (entry) => entry.from);
     if (min && min.from) {
       const minDate = setTime(new Date(min.from), 0, 0);
-      console.log()
       setMinDate(minDate);
+    }
+    const max = maxBy(filtered, (entry) => entry.from);
+    if (max && max.from) {
+      const maxDate = setTime(new Date(max.from), 23, 59);
+      setMaxDate(maxDate);
     }
     setGroupedTimetable(grouped);
   }, [timetable]);
@@ -80,6 +85,7 @@ const Timetable  = ({timetable, show}) => {
         day={date}
         currentDate={currentDate}
         minDate={minDate}
+        maxDate={maxDate}
         previousDay={goToPreviousDay}
         nextDay={goToNextDay}
       />

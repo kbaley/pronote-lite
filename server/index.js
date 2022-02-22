@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
 const { DateTime } = require('luxon');
+const { request } = require('http');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -24,6 +25,15 @@ app.use(sessions({
 }))
 
 var expressSession;
+
+// app.enable('trust proxy');
+// app.use((req, res, next) => {
+//   if (process.env.NODE_ENV != 'development' && !request.secure) {
+//     return res.redirect("https://" + req.headers.host + req.url);
+//   }
+
+//   next();
+// });
 
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
@@ -167,6 +177,7 @@ app.post("/api/logout", async (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
+
 
 app.listen(PORT, () => {
   console.log(`PRONOTE URL: ${PRONOTE_URL}`);
