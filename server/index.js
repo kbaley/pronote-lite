@@ -54,8 +54,8 @@ app.get("/api/timetable", authenticateToken, async (req, res, next) => {
     const today = getTodayWithoutTime();
     const oneWeekFromNow = new Date(today);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
-    const cachedTimetable = getCachedTimetable(req);
-    if (cachedTimetable === null || cachedTimetable === '') {
+    // const cachedTimetable = getCachedTimetable(req);
+    // if (cachedTimetable === null || cachedTimetable === '') {
       const session = await getSession(req);
       const timetable = await session.timetable(today, oneWeekFromNow);
       // The from and to dates ignore the timezone of the server where this is retrieved. E.g. if a
@@ -74,8 +74,8 @@ app.get("/api/timetable", authenticateToken, async (req, res, next) => {
       }
       req.session.timetable = JSON.stringify(timetable);
       res.json(timetable);
-    } else {
-      res.json(JSON.parse(cachedTimetable));
+    // } else {
+      // res.json(JSON.parse(cachedTimetable));
     }
   } catch (error) {
     console.log(error);
