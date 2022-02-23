@@ -76,7 +76,7 @@ app.get("/api/timetable", authenticateToken, async (req, res, next) => {
       res.json(timetable);
     // } else {
       // res.json(JSON.parse(cachedTimetable));
-    }
+    // }
   } catch (error) {
     console.log(error);
     next(error);
