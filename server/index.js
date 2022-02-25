@@ -155,7 +155,14 @@ app.post("/api/login", jsonParser, async (req, res) => {
     key: encrypted.encryptedData.toString('hex'),
     iv: encrypted.initVector.toString('hex')
   }, TOKEN_SECRET);
-  res.cookie('PLToken', authToken, { httpOnly: true });
+  const oneMonthFromNow = new Date();
+  oneMonthFromNow.setDate(oneMonthFromNow.getDate() + 30);
+  res.cookie('PLToken', authToken, { 
+    secure: proess.env.NODE_ENV !== "development",
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    expires: oneMonthFromNow,
+  });
   res.json({ authToken,
     user: {
       id: session.user.id,
