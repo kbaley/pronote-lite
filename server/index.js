@@ -52,12 +52,12 @@ const getTodayWithoutTime = () => {
 app.get("/api/timetable", authenticateToken, async (req, res, next) => {
   try {
     const today = getTodayWithoutTime();
-    const oneWeekFromNow = new Date(today);
-    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
+    const twoWeeksFromNow = new Date(today);
+    twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
     // const cachedTimetable = getCachedTimetable(req);
     // if (cachedTimetable === null || cachedTimetable === '') {
       const session = await getSession(req);
-      const timetable = await session.timetable(today, oneWeekFromNow);
+      const timetable = await session.timetable(today, twoWeeksFromNow);
       // The from and to dates ignore the timezone of the server where this is retrieved. E.g. if a
       // class starts at 7:30AM time on January 1 in the school's time zone, then the from time
       // retrieved from the server is "January 1, 2022 7:30AM". If the server is in a different time zone
