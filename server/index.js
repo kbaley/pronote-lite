@@ -158,7 +158,7 @@ app.post("/api/login", jsonParser, async (req, res) => {
   const oneMonthFromNow = new Date();
   oneMonthFromNow.setDate(oneMonthFromNow.getDate() + 30);
   res.cookie('PLToken', authToken, { 
-    secure: proess.env.NODE_ENV !== "development",
+    secure: process.env.NODE_ENV !== "development",
     httpOnly: true,
     maxAge: 30 * 24 * 60 * 60 * 1000,
     expires: oneMonthFromNow,
