@@ -56,6 +56,10 @@ export const getDateWithoutTime = (date) => {
   return moment(date).format('MMM DD');
 }
 
+export const getDateAtMidnight = (date) => {
+  return setTime(new Date(date), 0, 0);
+}
+
 export const setTime = (date, hour, minutes) => {
   const newDate = new Date(date);
   newDate.setHours(hour);

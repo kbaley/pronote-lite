@@ -2,15 +2,21 @@ import React from 'react';
 import { Box } from '@mui/material';
 import Header from './Header';
 import TimetableEntry from './TimetableEntry';
-import { groupBy, forEachRight, clone, filter, minBy, maxBy } from 'lodash';
+import { 
+  groupBy, 
+  forEachRight, 
+  clone, 
+  filter, 
+  map,
+  uniqWith,
+  isEqual
+} from 'lodash';
 import TimetableHeader from './TimetableHeader';
 import {
   getFirstDate,
-  tomorrow,
-  yesterday,
   getBreaks,
   getDateWithoutTime,
-  setTime,
+  getDateAtMidnight,
 } from './TimetableFns';
 
 const boxSx = {
@@ -26,28 +32,35 @@ const Timetable  = ({timetable, show}) => {
   const [minDate, setMinDate] = React.useState(null);
   const [maxDate, setMaxDate] = React.useState(null);
   const [groupedTimetable, setGroupedTimetable] = React.useState([]);
+  const [availableDates, setAvailableDates] = React.useState([]);
+  const [currentDateIndex, setCurrentDateIndex] = React.useState(0);
 
   const goToPreviousDay = () => {
-    setCurrentDate(yesterday(currentDate));
+    if (currentDateIndex > 0) {
+      setCurrentDateIndex(currentDateIndex - 1);
+      setCurrentDate(availableDates[currentDateIndex - 1]);
+    }
   }
 
   const goToNextDay = () => {
-    setCurrentDate(tomorrow(currentDate));
+    if (currentDateIndex < availableDates.length ) {
+      setCurrentDateIndex(currentDateIndex + 1);
+      setCurrentDate(availableDates[currentDateIndex + 1]);
+    }
   }
 
   React.useEffect(() => {
-    setCurrentDate(getFirstDate(timetable));
+    const dates = uniqWith(map(timetable, (entry) => {
+      return getDateAtMidnight(entry.from);
+    }), isEqual);
+    setAvailableDates(dates);
     const filtered = filter(timetable, (entry) => entry.status !== "Cours annulé");
     const grouped = groupBy(filtered, (entry) => getDateWithoutTime(entry.from));
-    const min = minBy(filtered, (entry) => entry.from);
-    if (min && min.from) {
-      const minDate = setTime(new Date(min.from), 0, 0);
-      setMinDate(minDate);
-    }
-    const max = maxBy(filtered, (entry) => entry.from);
-    if (max && max.from) {
-      const maxDate = setTime(new Date(max.from), 23, 59);
-      setMaxDate(maxDate);
+    if (dates.length > 0) {
+      setCurrentDate(dates[0]);
+      setCurrentDateIndex(0);
+      setMinDate(dates[0]);
+      setMaxDate(dates[dates.length - 1]);
     }
     setGroupedTimetable(grouped);
   }, [timetable]);
