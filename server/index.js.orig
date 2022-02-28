@@ -9,10 +9,13 @@ const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authenticateToken');
 const path = require('path');
 const { DateTime } = require('luxon');
+<<<<<<< HEAD
 const datefns = require('./datefns');
 const timetablefns = require('./timetablefns');
 const _ = require('lodash');
+=======
 const { request } = require('http');
+>>>>>>> main
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -69,11 +72,19 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
 
 app.get("/api/timetable", authenticateToken, async (req, res, next) => {
   try {
+<<<<<<< HEAD
+    const today = datefns.getTodayWithoutTime();
+    const oneWeekFromNow = new Date(today);
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 14);
+    const cachedTimetable = getCachedTimetable(req);
+    if (cachedTimetable === null || cachedTimetable === '') {
+=======
     const today = getTodayWithoutTime();
     const twoWeeksFromNow = new Date(today);
     twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
     // const cachedTimetable = getCachedTimetable(req);
     // if (cachedTimetable === null || cachedTimetable === '') {
+>>>>>>> main
       const session = await getSession(req);
       const timetable = await session.timetable(today, twoWeeksFromNow);
       // The from and to dates ignore the timezone of the server where this is retrieved. E.g. if a

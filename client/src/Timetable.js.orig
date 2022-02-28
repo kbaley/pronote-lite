@@ -18,6 +18,7 @@ import {
   getDateWithoutTime,
   getDateAtMidnight,
 } from './TimetableFns';
+import { useNavigate } from 'react-router-dom';
 
 const boxSx = {
   display: 'inline-block',
@@ -32,8 +33,12 @@ const Timetable  = ({timetable, show}) => {
   const [minDate, setMinDate] = React.useState(null);
   const [maxDate, setMaxDate] = React.useState(null);
   const [groupedTimetable, setGroupedTimetable] = React.useState([]);
+<<<<<<< HEAD
+  const navigate = useNavigate();
+=======
   const [availableDates, setAvailableDates] = React.useState([]);
   const [currentDateIndex, setCurrentDateIndex] = React.useState(0);
+>>>>>>> main
 
   const goToPreviousDay = () => {
     if (currentDateIndex > 0) {
