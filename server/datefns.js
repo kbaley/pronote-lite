@@ -19,3 +19,16 @@ exports.getSundayWithoutTime = () => {
   newDate.setMilliseconds(0);
   return newDate;
 }
+
+exports.getWeekdaysBetween = (start, end) => {
+  let index = new Date(start);
+  const weekdays = [];
+  while (index <= end) {
+    const dayOfWeek = index.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      weekdays.push(new Date(index));
+    }
+    index.setDate(index.getDate() + 1);
+  }
+  return weekdays;
+}

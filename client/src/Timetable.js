@@ -2,11 +2,11 @@ import React from 'react';
 import { Box } from '@mui/material';
 import Header from './Header';
 import TimetableEntry from './TimetableEntry';
-import { 
-  groupBy, 
-  forEachRight, 
-  clone, 
-  filter, 
+import {
+  groupBy,
+  forEachRight,
+  clone,
+  filter,
   map,
   uniqWith,
   isEqual
@@ -18,6 +18,7 @@ import {
   getDateWithoutTime,
   getDateAtMidnight,
 } from './TimetableFns';
+import { useNavigate } from 'react-router-dom';
 
 const boxSx = {
   display: 'inline-block',
@@ -25,6 +26,7 @@ const boxSx = {
   width: '100%',
 }
 const Timetable  = ({timetable, show}) => {
+  const navigate = useNavigate();
   const [dayEntries, setDayEntries] = React.useState([]);
   const [date, setDate] = React.useState("");
   const firstDate = getFirstDate(timetable);

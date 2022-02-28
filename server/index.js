@@ -48,6 +48,7 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
 
     const sunday = datefns.getSundayWithoutTime();
     const oneWeekFromNow = new Date(sunday);
+    const days = datefns.getWeekdaysBetween(sunday, oneWeekFromNow);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
     let timetable = await session.timetable(sunday, oneWeekFromNow);
@@ -69,7 +70,7 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
 
 app.get("/api/timetable", authenticateToken, async (req, res, next) => {
   try {
-    const today = getTodayWithoutTime();
+    const today = datefns.getTodayWithoutTime();
     const twoWeeksFromNow = new Date(today);
     twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
     // const cachedTimetable = getCachedTimetable(req);

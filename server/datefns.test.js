@@ -13,3 +13,12 @@ test('can get Sunday', () => {
   const diff = result - expectedDate;
   expect(diff).toBe(0);
 });
+
+test('can get weekdays between dates', () => {
+  const start = new Date(2022, 2, 13, 5, 0, 0, 0);
+  const end = new Date(2022, 2, 20, 5, 0, 0, 0);
+  const result = datefns.getWeekdaysBetween(start, end);
+  expect(result.length).toBe(5);
+  expect(result[0].getDate()).toBe(14);
+  expect(result[4].getDate()).toBe(18);
+})

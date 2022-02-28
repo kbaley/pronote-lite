@@ -21,6 +21,21 @@ exports.addBreaks = (groupedEntries, startHour, startMinute) => {
   return newList;
 };
 
+exports.getTimeslots = (timetable) => {
+  const allSlots = _
+    .flatten(_
+      .map(timetable, (day) => 
+        _.map(day, 
+          (entry) => getTimeString(entry.from))));
+  const slots = _.uniq(allSlots);
+  console.log(slots);
+  return slots;
+}
+
+const getTimeString = (date) => {
+  return DateTime.fromJSDate(new Date(date)).toLocaleString(DateTime.TIME_24_SIMPLE);
+}
+
 const getBreaks = (dayEntries, endTime) => {
   const newEntries = [];
   for (let i = 0; i < dayEntries.length; i++) {
