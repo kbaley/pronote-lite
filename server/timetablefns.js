@@ -28,8 +28,17 @@ exports.getTimeslots = (timetable) => {
         _.map(day, 
           (entry) => getTimeString(entry.from))));
   const slots = _.uniq(allSlots);
-  console.log(slots);
+  slots.sort();
   return slots;
+}
+
+exports.calculateTimeslots = (entry) => {
+  const start = DateTime.fromISO(entry.from);
+  const end = DateTime.fromISO(entry.to);
+
+  const diff = end.diff(start, ["minutes"]);
+  console.log(diff.minutes / 60);
+  return Math.round(diff.minutes / 60);
 }
 
 const getTimeString = (date) => {

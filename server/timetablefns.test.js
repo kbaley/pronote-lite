@@ -40,4 +40,16 @@ test('can get timeslots', () => {
   const results = timetablefns.getTimeslots(withBreaks);
 
   expect(results.length).toBe(8);
+  expect(results[0]).toBe('10:30');
+  expect(results[7]).toBe('16:55');
+});
+
+test('can calculate number of slots for an entry', () => {
+  const timetable = JSON.parse(fs.readFileSync('weeklyTimetableData.js', 'utf8'));
+
+  let slots = timetablefns.calculateTimeslots(timetable["2022-02-07"][0]);
+  expect(slots).toBe(1);
+
+  slots = timetablefns.calculateTimeslots(timetable["2022-02-11"][0]);
+  expect(slots).toBe(2);
 });

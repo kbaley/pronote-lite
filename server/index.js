@@ -48,7 +48,6 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
 
     const sunday = datefns.getSundayWithoutTime();
     const oneWeekFromNow = new Date(sunday);
-    const days = datefns.getWeekdaysBetween(sunday, oneWeekFromNow);
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     const session = await getSession(req);
     let timetable = await session.timetable(sunday, oneWeekFromNow);
@@ -58,10 +57,17 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
       entry.fromNoTimezone = DateTime.fromJSDate(entry.from).toLocaleString(DateTime.DATETIME_MED);
       entry.toNoTimezone = DateTime.fromJSDate(entry.to).toLocaleString(DateTime.DATETIME_MED);
       entry.dateText = DateTime.fromJSDate(entry.from).toFormat("yyyy-LL-dd");
+      entry.slots = timetablefns.calculateSlots(entry);
     }
     const grouped = _.groupBy(timetable, (entry) => entry.dateText);
     const withBreaks = timetablefns.addBreaks(grouped, 7, 30);
-    res.json(withBreaks);
+    const days = datefns.getWeekdaysBetween(sunday, oneWeekFromNow);
+    const slots = timetablefns.getTimeslots(grouped);
+    res.json({
+      days,
+      slots,
+      timetable: withBreaks
+    });
   } catch (error) {
     console.log(error);
     next(error);
