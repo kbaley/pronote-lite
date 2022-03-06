@@ -40,8 +40,8 @@ test('can get timeslots', () => {
   const results = timetablefns.getTimeslots(withBreaks);
 
   expect(results.length).toBe(8);
-  expect(results[0]).toBe('10:30');
-  expect(results[7]).toBe('16:55');
+  expect(results[0]).toBe('07:30');
+  expect(results[7]).toBe('13:55');
 });
 
 test('can calculate number of slots for an entry', () => {

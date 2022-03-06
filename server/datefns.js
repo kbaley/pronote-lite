@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon');
+
 exports.getTodayWithoutTime = () => {
   const today = new Date();
   today.setHours(0);
@@ -31,4 +33,12 @@ exports.getWeekdaysBetween = (start, end) => {
     index.setDate(index.getDate() + 1);
   }
   return weekdays;
+}
+
+exports.getLuxonDate = (date) => {
+  let theDate = DateTime.fromJSDate(date);
+  if (theDate.invalid) {
+    theDate = DateTime.fromISO(date);
+  }
+  return theDate;
 }

@@ -12,7 +12,6 @@ const { DateTime } = require('luxon');
 const datefns = require('./datefns');
 const timetablefns = require('./timetablefns');
 const _ = require('lodash');
-const { request } = require('http');
 
 const PORT = process.env.PORT || 3001;
 const PRONOTE_URL = process.env.PRONOTE_URL;
@@ -57,10 +56,10 @@ app.get("/api/weeklytimetable", authenticateToken, async (req, res, next) => {
       entry.fromNoTimezone = DateTime.fromJSDate(entry.from).toLocaleString(DateTime.DATETIME_MED);
       entry.toNoTimezone = DateTime.fromJSDate(entry.to).toLocaleString(DateTime.DATETIME_MED);
       entry.dateText = DateTime.fromJSDate(entry.from).toFormat("yyyy-LL-dd");
-      entry.slots = timetablefns.calculateSlots(entry);
+      entry.slots = timetablefns.calculateTimeslots(entry);
     }
     const grouped = _.groupBy(timetable, (entry) => entry.dateText);
-    const withBreaks = timetablefns.addBreaks(grouped, 7, 30);
+    const withBreaks = timetablefns.addBreaks(grouped);
     const days = datefns.getWeekdaysBetween(sunday, oneWeekFromNow);
     const slots = timetablefns.getTimeslots(grouped);
     res.json({

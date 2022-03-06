@@ -1,23 +1,19 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import TimetableEntry from './TimetableEntry';
-import { forEachRight, clone } from 'lodash';
+import { Grid, Typography } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment';
 import { forEach } from 'lodash';
 import LoginForm from './LoginForm';
+import WeeklyTimetable from './WeeklyTimetable';
 
-const boxSx = {
-  display: 'inline-block',
-  mx: '5px',
-  width: '100%',
-}
 const PrintableTimetable  = () => {
   const [timetable, setTimetable] = React.useState({});
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const getStudentData = React.useCallback(() => {
 
+    setIsLoading(true);
     axios.get('/api/weeklytimetable')
     .then( (result) => {
       const data = result.data;
@@ -26,12 +22,13 @@ const PrintableTimetable  = () => {
         entry.from = moment(entry.fromNoTimezone).toDate();
         entry.to = moment(entry.toNoTimezone).toDate();;
       });
-      console.log(data);
       moment.suppressDeprecationWarnings = false;
       setTimetable(data);
+      setIsLoading(false);
     })
     .catch( (error) => {
       console.log(error);
+      setIsLoading(false);
     });
   }, []);
 
@@ -52,6 +49,26 @@ const PrintableTimetable  = () => {
           isParentLoggedIn={isLoggedIn}
           show={!isLoggedIn}
         />
+        <Grid
+          container
+          spacing={2}
+        >
+          <Grid item
+            xs={12}
+          >
+            <Typography
+              sx={{display: isLoading ? "block" : "none" }}
+            >
+              Loading timetable...
+            </Typography>
+            {timetable.timetable &&
+            <WeeklyTimetable
+              timetable={timetable}
+              show={!isLoading && isLoggedIn}
+            />
+            }
+          </Grid>
+        </Grid>
       </div>
     </>
   )
