@@ -102,7 +102,6 @@ const Timetable  = ({timetable, show}) => {
       <Header
         text="Timetable"
         visible={timetable.length > 0}
-        printFunction={print}
       />
       <TimetableHeader
         day={date}
