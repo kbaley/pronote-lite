@@ -19,11 +19,11 @@ const hexToRgb = (hex) => {
   }
 }
 
-const cardSx = (backgroundColor) => {
+const cardSx = (backgroundColor, isAbsent) => {
   return (
   {
     my: 0,
-    border: `0 solid ${backgroundColor}`,
+    border: isAbsent ? '1px dashed red' : `1px solid rgba(${hexToRgb(backgroundColor)}0.1)`,
     borderRadius: 0,
     p: 0,
     textAlign: 'center',
@@ -58,7 +58,7 @@ const TimetableEntry = ({entry}) => {
     <Card
       key={entry.id}
       variant="outlined"
-      sx={cardSx(entry.color)}
+      sx={cardSx(entry.color, entry.status === 'Prof. absent')}
     >
       <Box sx={{display: 'flex', flexDirection: 'column'}}>
         <CardContent sx={{ flex: '1 0 auto', borderRight: `1px solid ${entry.color}`,  }}>
